@@ -87,6 +87,8 @@ class ApprovalRequest(BaseModel):
     subject: str
     status: str = "pending"  # "pending" | "approved" | "rejected" | "expired"
     reason: str | None = None
+    requested_at: str | None = None
+    expires_at: str | None = None
 
 
 class CostState(BaseModel):
@@ -132,12 +134,16 @@ class RunManifest(BaseModel):
     workflow_version: str
     execution_mode: str = "atomic"
     required_capabilities: list[str] = []
+    inferred_capabilities: list[str] = []
     resolved_agents: list[ResolvedAgent] = []
     input_artifacts: list[ArtifactRef] = []
     output_artifacts: list[ArtifactRef] = []
     file_allowlist: list[str] = []
     max_runtime_seconds: int | None = None
+    max_delegation_depth: int | None = None
+    max_child_agent_calls: int | None = None
     max_total_cost_usd: float | None = None
+    policy_bundle_version: str | None = None
     approval_required: bool = False
     manifest_hash: str | None = None
 

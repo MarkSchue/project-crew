@@ -14,6 +14,9 @@ capabilities:
   - id: "security.threat_model"
     proficiency: 3
     evidence_refs: ["registry/agents/security_architect/tests/threat_model_eval.yaml"]
+  - id: "security.secrets_management"
+    proficiency: 3
+    evidence_refs: ["registry/agents/security_architect/tests/secrets_management_eval.yaml"]
   - id: "architecture.requirement_traceability"
     proficiency: 4
     evidence_refs: ["registry/agents/security_architect/tests/traceability_eval.yaml"]

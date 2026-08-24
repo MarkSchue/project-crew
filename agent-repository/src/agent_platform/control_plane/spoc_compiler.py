@@ -20,11 +20,17 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from agent_platform.application.ports.approval_gateway import ApprovalGateway
 from agent_platform.application.ports.clock_and_ids import Clock, IdGenerator
 from agent_platform.application.ports.policy_decision_point import PolicyDecisionPoint
+from agent_platform.control_plane.capability_inference import (
+    InferenceAdapter,
+    process_inferred_candidates,
+)
 from agent_platform.control_plane.capability_matcher import MatchRequest, match
+from agent_platform.control_plane.policy_engine import POLICY_BUNDLE_VERSION
 from agent_platform.domain.ids import compute_execution_key
-from agent_platform.domain.run import ArtifactRef, ResolvedAgent, RunManifest
+from agent_platform.domain.run import ApprovalRequest, ArtifactRef, ResolvedAgent, RunManifest
 from agent_platform.registries.agent_registry import AgentRegistry
 from agent_platform.registries.capability_registry import CapabilityRegistry
 from agent_platform.registries.workflow_registry import WorkflowRegistry
@@ -45,6 +51,8 @@ class CompileSpocService:
     policy: PolicyDecisionPoint
     clock: Clock
     id_generator: IdGenerator
+    inference_adapter: InferenceAdapter | None = None
+    approval_gateway: ApprovalGateway | None = None
 
     def compile(self, spoc: dict, *, project_id: str) -> RunManifest:
         spoc_id = spoc["id"]
@@ -67,8 +75,12 @@ class CompileSpocService:
             )
 
         explicit_capabilities = procedure.get("explicit_capabilities", [])
+        inferred_capabilities = self._resolve_inferred_capabilities(
+            procedure, explicit_capabilities
+        )
+        all_capabilities = list(dict.fromkeys(explicit_capabilities + inferred_capabilities))
         match_request = MatchRequest(
-            explicit_capabilities=explicit_capabilities,
+            explicit_capabilities=all_capabilities,
             classification=classification,
         )
         match_result = match(match_request, self.agent_registry, self.capability_registry)
@@ -128,7 +140,7 @@ class CompileSpocService:
             resolved_input_hashes=resolved_input_hashes,
             workflow_id=workflow_id,
             workflow_version=workflow_version,
-            policy_bundle_version="local-dev-policy/0.1.0",
+            policy_bundle_version=POLICY_BUNDLE_VERSION,
         )
 
         run_id = self.id_generator.new_id("run")
@@ -147,12 +159,16 @@ class CompileSpocService:
             workflow_version=workflow_version,
             execution_mode=execution_mode,
             required_capabilities=sorted(match_result.required_capabilities),
+            inferred_capabilities=sorted(inferred_capabilities),
             resolved_agents=resolved_agents,
             input_artifacts=input_artifacts,
             output_artifacts=output_artifacts,
             file_allowlist=file_allowlist,
             max_runtime_seconds=constraints.get("max_runtime_seconds"),
+            max_delegation_depth=constraints.get("max_delegation_depth"),
+            max_child_agent_calls=constraints.get("max_child_agent_calls"),
             max_total_cost_usd=constraints.get("max_total_cost_usd"),
+            policy_bundle_version=POLICY_BUNDLE_VERSION,
             approval_required=approval_required,
         )
 
@@ -170,6 +186,49 @@ class CompileSpocService:
             context={"classification": classification},
         )
         return not decision.allowed
+
+    def _resolve_inferred_capabilities(
+        self, procedure: dict, explicit_capabilities: list[str]
+    ) -> list[str]:
+        """Governed capability inference (masterplan section 12.3, plan
+        milestone M5.5): low-risk candidates auto-add; high-risk or
+        access-expanding candidates require a human approval record and
+        block compilation until one exists. Explicit capabilities are
+        never removed."""
+        if not procedure.get("allow_capability_inference") or self.inference_adapter is None:
+            return []
+
+        procedure_text = procedure.get("objective", "")
+        instructions_ref = procedure.get("instructions_ref", "")
+        candidates = self.inference_adapter.propose(f"{procedure_text} {instructions_ref}")
+
+        outcome = process_inferred_candidates(
+            candidates,
+            self.capability_registry,
+            explicit_capabilities=set(explicit_capabilities),
+            allow_inference=True,
+        )
+
+        inferred = list(outcome.auto_added)
+        for capability_id in outcome.needs_human_review:
+            if self.approval_gateway is None:
+                raise SpocCompilationError(
+                    f"high-risk inferred capability '{capability_id}' requires human approval "
+                    "but no approval gateway is configured"
+                )
+            approval = ApprovalRequest(
+                approval_id=self.id_generator.new_id("approval"),
+                scope="high_risk_inferred_capability",
+                subject=capability_id,
+            )
+            self.approval_gateway.request_approval(approval)
+            if self.approval_gateway.get_status(approval.approval_id) != "approved":
+                raise SpocCompilationError(
+                    f"high-risk inferred capability '{capability_id}' requires human approval"
+                )
+            inferred.append(capability_id)
+
+        return inferred
 
 
 def _parse_workflow_ref(workflow_ref: str) -> tuple[str, str]:

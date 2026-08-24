@@ -43,6 +43,18 @@ for" and "what actually gets authorized to run" (ADR-004, ADR-007).
   rejected candidate's failing hard filter.
 - `spoc_compiler.py` (Phase 3): compiles a validated SPOC front-matter
   dict into an immutable `RunManifest` (masterplan section 10.4).
+- `policy_engine.py` (Phase 5, M5.1): attribute-based authorization
+  (masterplan section 15.3) — hard-deny actions, classification checks,
+  mandatory-approval matrix; records and emits every `policy_decision`.
+- `approval_matrix.py` + `approval_service.py` (Phase 5, M5.2): the
+  mandatory-approval matrix (masterplan section 15.7) and the durable
+  approval-request lifecycle with expiry.
+- `model_router.py` (Phase 5, M5.3): resolves model profiles with
+  residency and classification constraints (most restrictive
+  intersection).
+- `budget_enforcer.py` (Phase 5, M5.4): enforces runtime, delegation
+  depth, child-call, and cost limits, emitting `budget_threshold_reached`
+  events on violation.
 
 ## Explicit non-responsibilities
 

@@ -34,7 +34,7 @@ strategy). This file is currently maintained by hand; a `mas docs` generator
 |---|---|---|
 | `agent_platform.schemas` | [module.md](implementation/agent_platform/schemas/module.md) | Phase 1: canonicalization, OKF linter, xref validator, index generator |
 | `agent_platform.registries` | [module.md](implementation/agent_platform/registries/module.md) | Phase 2: agent/capability/skill/tool/model/workflow registries |
-| `agent_platform.control_plane` | [module.md](implementation/agent_platform/control_plane/module.md) + [CompileSpocService.md](implementation/agent_platform/control_plane/CompileSpocService.md) | Phase 2/3: capability matcher, inference, explainer; Phase 3: SPOC compiler |
+| `agent_platform.control_plane` | [module.md](implementation/agent_platform/control_plane/module.md) + [CompileSpocService.md](implementation/agent_platform/control_plane/CompileSpocService.md) + [PolicyEngine.md](implementation/agent_platform/control_plane/PolicyEngine.md) + [ApprovalService.md](implementation/agent_platform/control_plane/ApprovalService.md) + [ModelRouter.md](implementation/agent_platform/control_plane/ModelRouter.md) + [BudgetEnforcer.md](implementation/agent_platform/control_plane/BudgetEnforcer.md) | Phase 2/3: matcher, inference, explainer, compiler; Phase 5: policy, approvals, model routing, budgets |
 | `agent_platform.cli` | [module.md](implementation/agent_platform/cli/module.md) | `mas` CLI commands |
 | `agent_platform.domain` | [module.md](implementation/agent_platform/domain/module.md) | Phase 3: typed run/project/event domain models |
 | `agent_platform.application.ports` | [module.md](implementation/agent_platform/application/ports/module.md) | Phase 3: application ports (plan section 20.1) |
