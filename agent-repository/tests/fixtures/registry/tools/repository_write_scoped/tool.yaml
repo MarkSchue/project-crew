@@ -13,6 +13,6 @@ retry_policy:
   retry_on: ["transient_io_error"]
 idempotent: false
 audit_required: true
-test_evidence_refs: ["tests/contract/test_repository_write_scoped.py"]
-security_evidence_refs: ["tests/security/test_path_traversal.py", "tests/security/test_symlink_escape.py"]
+test_evidence_refs: ["tests/unit/test_repository_read_write.py"]
+security_evidence_refs: ["tests/security/test_path_guard.py", "tests/security/test_file_mutations.py"]
 status: "active"

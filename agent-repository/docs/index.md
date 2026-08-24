@@ -22,7 +22,7 @@ strategy). This file is currently maintained by hand; a `mas docs` generator
 - `configuration/` — not yet applicable (no environment configuration
   surface implemented yet).
 - `security/` — see [`agent-repository/docs/security/threat_model.md`](security/threat_model.md)
-  once M0.3 is executed; not yet written.
+  (M0.3 threat model).
 - `operations/` — not yet applicable (no deployment/runbook surface yet).
 - [`testing/`](testing/) — test strategy summary.
 - `generated/` — reserved for reproducible projections (none yet).
@@ -41,6 +41,17 @@ strategy). This file is currently maintained by hand; a `mas docs` generator
 | `agent_platform.adapters` | [module.md](implementation/agent_platform/adapters/module.md) | Phase 3: in-memory/local test-double adapters behind the ports above |
 | `agent_platform.execution_plane` | [module.md](implementation/agent_platform/execution_plane/module.md) + [ProjectExecutionFlow.md](implementation/agent_platform/execution_plane/ProjectExecutionFlow.md) | Phase 3: `ProjectExecutionFlow`, QA gate |
 | `agent_platform.telemetry` | [module.md](implementation/agent_platform/telemetry/module.md) | Phase 3: event JSONL projection, run summary generation |
+
+## Tool library (`tools/`)
+
+These are consumed through the tool registry, not imported as application
+code (masterplan section 7.1, 14.1).
+
+| Tool package | Module doc | Notes |
+|---|---|---|
+| `tools.file_tools` | [module.md](implementation/tools/file_tools/module.md) + [PathGuard.md](implementation/tools/file_tools/PathGuard.md) | Phase 4: path security kernel, scoped read/write, secret scanner |
+| `tools.git_tools` | [module.md](implementation/tools/git_tools/module.md) | Phase 4: branch-per-run + pull-request body |
+| `tools.validation_tools` | [module.md](implementation/tools/validation_tools/module.md) | Phase 4: checksum manifest + provenance stamping |
 
 100% documentation coverage for required code units is a protected-branch
 requirement (plan section 17.8) once CI enforces it; it is not yet enforced
