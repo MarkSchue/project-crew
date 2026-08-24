@@ -11,14 +11,14 @@ updated_at: "2026-08-24T09:00:00Z"
 tags: ["inception", "governance"]
 source_refs:
   - "plan/crewai_multi_agent_project_masterplan.md#30-open-decisions-for-project-inception"
-  - "agent-repository/docs/adr/ADR-001.md"
-  - "agent-repository/docs/adr/ADR-002.md"
-  - "agent-repository/docs/adr/ADR-003.md"
-  - "agent-repository/docs/adr/ADR-005.md"
-  - "agent-repository/docs/adr/ADR-006.md"
-  - "agent-repository/docs/adr/ADR-016.md"
-  - "agent-repository/docs/adr/ADR-017.md"
-  - "agent-repository/docs/adr/ADR-018.md"
+  - "agent-repository/docs/decisions/ADR-001.md"
+  - "agent-repository/docs/decisions/ADR-002.md"
+  - "agent-repository/docs/decisions/ADR-003.md"
+  - "agent-repository/docs/decisions/ADR-005.md"
+  - "agent-repository/docs/decisions/ADR-006.md"
+  - "agent-repository/docs/decisions/ADR-016.md"
+  - "agent-repository/docs/decisions/ADR-017.md"
+  - "agent-repository/docs/decisions/ADR-018.md"
 relations: []
 provenance:
   created_by_type: "human"
@@ -30,7 +30,7 @@ provenance:
 
 Answers to every bullet in masterplan section 30. Each answer is
 non-deferred unless explicitly scoped to a later phase. These decisions
-are inputs to ADR-001 through ADR-022 (`agent-repository/docs/adr/`) and
+are inputs to ADR-001 through ADR-022 (`agent-repository/docs/decisions/`) and
 must be treated as binding until superseded by a new decision record.
 
 ## Which project types are supported first?

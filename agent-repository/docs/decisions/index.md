@@ -1,6 +1,6 @@
 <!-- GENERATED FILE. Do not edit by hand; regenerate with `mas index rebuild`. -->
 
-# Index of `adr/`
+# Index of `decisions/`
 
 | id | type | status | title | file |
 |---|---|---|---|---|
