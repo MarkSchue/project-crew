@@ -1,0 +1,8 @@
+workflow_id: change_request
+version: "1.0.0"
+description: >
+  Scope/budget/baseline change workflow. A baselined plan artifact cannot
+  be altered without an explicit approval record for
+  scope_budget_baseline_change (masterplan section 15.7).
+stage_gates: [G3]
+requires_approval: true

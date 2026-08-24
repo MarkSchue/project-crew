@@ -1,0 +1,10 @@
+workflow_id: requirement_to_delivery
+version: "1.2.0"
+description: >
+  G3/G4 build workflow. Compiles a SPOC into an immutable manifest and
+  executes it end-to-end, including the QA rework loop and gate evidence
+  (masterplan section 10.2, ADR-015).
+stage_gates: [G3, G4]
+template_contract: requirement-to-delivery/1.2
+supported_execution_modes: [atomic, delegated]
+requires_approval: false

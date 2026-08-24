@@ -1,0 +1,7 @@
+workflow_id: risk_escalation
+version: "1.0.0"
+description: >
+  Risk escalation workflow. A critical risk automatically raises a
+  human_escalation event on the append-only ledger (masterplan section 8.4).
+stage_gates: [G3, G4]
+requires_approval: false

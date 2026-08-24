@@ -1,0 +1,18 @@
+workflow_id: planning_baseline
+version: "1.0.0"
+description: >
+  G2 planning/baseline workflow. Produces WBS, milestone deliverable,
+  acceptance strategy, architecture constraints, initial risk/dependency,
+  and an epic with a linked, test-covered user story (masterplan section 8.2).
+stage_gates: [G2]
+produces:
+  - public/plans/wbs.md
+  - public/deliverables/DEL-001.md
+  - public/acceptance/acceptance_strategy.md
+  - public/architecture/constraints.md
+  - public/risks/RISK-001.md
+  - public/dependencies/DEP-001.md
+  - public/epics/EPIC-001.md
+  - public/user_stories/US-001.md
+  - public/test_cases/TC-001.md
+requires_approval: true

@@ -33,6 +33,14 @@ compiled manifest and never mutates registry or governance policy.
   execution via the injected `ToolExecutor`, evidence review, and
   pass/rework/dead-letter routing with the originating-agent !=
   QA-agent hard assertion (ADR-020, M3.8 DoD).
+- `worker.py`: `Worker` — queue-backed lease/recovery execution (M6.3);
+  see `Worker.md`.
+- `raid.py`: RAID/decision-log rendering and the dependency ``blocks``
+  gate (M7.4); see `raid.md`.
+- `status_report_generator.py`: OKF status reports with zero unsourced
+  claims (M7.5); see `status_report_generator.md`.
+- `flows/`: G0-G5 project-management workflows (M7.1-M7.6); see
+  `flows/module.md`.
 
 ## Explicit non-responsibilities
 

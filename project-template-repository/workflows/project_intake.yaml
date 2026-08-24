@@ -1,0 +1,11 @@
+workflow_id: project_intake
+version: "1.0.0"
+description: >
+  G0/G1 intake workflow. Produces the project charter, initial constraints,
+  and decision-rights artifacts (masterplan section 8.2).
+stage_gates: [G0, G1]
+produces:
+  - public/charter/project_charter.md
+  - public/charter/initial_constraints.md
+  - public/decisions/decision_rights.md
+requires_approval: true

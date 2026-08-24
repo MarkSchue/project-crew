@@ -1,0 +1,8 @@
+workflow_id: project_closure
+version: "1.0.0"
+description: >
+  G5 closure workflow. Blocks completion until unresolved risks/issues have
+  owners and any lesson proposed for global promotion has an explicit human
+  approval record (masterplan section 8.2, 8.5).
+stage_gates: [G5]
+requires_approval: true

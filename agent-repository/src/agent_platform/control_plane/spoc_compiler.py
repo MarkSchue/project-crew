@@ -18,6 +18,7 @@ Reduced fidelity for the Phase 3 vertical slice, explicitly noted:
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from agent_platform.application.ports.approval_gateway import ApprovalGateway
@@ -53,11 +54,19 @@ class CompileSpocService:
     id_generator: IdGenerator
     inference_adapter: InferenceAdapter | None = None
     approval_gateway: ApprovalGateway | None = None
+    blocked_check: Callable[[str], list[str]] | None = None
 
     def compile(self, spoc: dict, *, project_id: str) -> RunManifest:
         spoc_id = spoc["id"]
         spoc_version = spoc.get("content_hash") or compute_content_hash(spoc, "")
         classification = spoc.get("classification", "internal")
+
+        if self.blocked_check is not None:
+            blockers = self.blocked_check(spoc_id)
+            if blockers:
+                raise SpocCompilationError(
+                    f"spoc '{spoc_id}' is blocked by unresolved dependencies: {', '.join(blockers)}"
+                )
 
         workflow_id, workflow_version = _parse_workflow_ref(spoc["workflow"])
         workflow_entry = self.workflow_registry.get(workflow_id, workflow_version)
