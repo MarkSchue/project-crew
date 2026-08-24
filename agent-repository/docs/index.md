@@ -15,7 +15,9 @@ strategy). This file is currently maintained by hand; a `mas docs` generator
   at the workspace root.
 - [`implementation/`](implementation/) — mirrored module and class
   documentation for `src/agent_platform/`.
-- `api/` — not yet applicable (no HTTP API implemented yet, Phase 6).
+- [`api/`](api/openapi.json) — the committed OpenAPI spec for the FastAPI
+  control plane (Phase 6, M6.1); implementation doc at
+  [`implementation/agent_platform/api/module.md`](implementation/agent_platform/api/module.md).
 - `cli/` — not yet applicable as a separate category; CLI commands are
   documented alongside their implementation module
   ([`implementation/agent_platform/cli/`](implementation/agent_platform/cli/module.md)).
@@ -39,8 +41,10 @@ strategy). This file is currently maintained by hand; a `mas docs` generator
 | `agent_platform.domain` | [module.md](implementation/agent_platform/domain/module.md) | Phase 3: typed run/project/event domain models |
 | `agent_platform.application.ports` | [module.md](implementation/agent_platform/application/ports/module.md) | Phase 3: application ports (plan section 20.1) |
 | `agent_platform.adapters` | [module.md](implementation/agent_platform/adapters/module.md) | Phase 3: in-memory/local test-double adapters behind the ports above |
-| `agent_platform.execution_plane` | [module.md](implementation/agent_platform/execution_plane/module.md) + [ProjectExecutionFlow.md](implementation/agent_platform/execution_plane/ProjectExecutionFlow.md) | Phase 3: `ProjectExecutionFlow`, QA gate |
+| `agent_platform.execution_plane` | [module.md](implementation/agent_platform/execution_plane/module.md) + [ProjectExecutionFlow.md](implementation/agent_platform/execution_plane/ProjectExecutionFlow.md) + [Worker.md](implementation/agent_platform/execution_plane/Worker.md) | Phase 3: `ProjectExecutionFlow`, QA gate; Phase 6: worker + lease recovery |
 | `agent_platform.telemetry` | [module.md](implementation/agent_platform/telemetry/module.md) | Phase 3: event JSONL projection, run summary generation |
+| `agent_platform.api` | [module.md](implementation/agent_platform/api/module.md) | Phase 6: FastAPI control plane + SSE/RBAC |
+| `agent_platform.repositories.postgres` | [module.md](implementation/agent_platform/repositories/postgres/module.md) | Phase 6: PostgreSQL RunStateStore/EventLedger |
 
 ## Tool library (`tools/`)
 

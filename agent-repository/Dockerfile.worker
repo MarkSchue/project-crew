@@ -1,0 +1,32 @@
+# Execution-worker container (plan milestone M6.4, ADR-004, ADR-007).
+
+# Isolation strategy (defense in depth):
+#
+# 1. The image contains NO registry, policy, or schema data — only the
+#    execution-plane code and tools.
+# 2. At run time, ONLY manifest-approved paths are mounted read-write into
+#    /work (e.g. `docker run -v $ALLOWLIST_DIR:/work:rw ...`). The
+#    application-level PathGuard (tools/file_tools/path_guard.py) is the
+#    second layer on top of this container-level mount boundary, so a
+#    worker cannot read outside its allowlist even if application checks
+#    are bypassed (M6.4 Definition of done).
+#
+# Build:
+#
+#   docker build -f Dockerfile.worker -t agent-platform-worker .
+
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY pyproject.toml uv.lock ./
+RUN pip install --no-cache-dir -e .
+
+COPY src/ ./src/
+COPY tools/ ./tools/
+
+# The worker entry point (queue pull + lease + flow execution) is
+# agent_platform/execution_plane/worker.py; the dispatcher process invokes
+# it with a manifest. Placeholder CMD documented here:
+# CMD ["python", "-c", "from agent_platform.execution_plane.worker import Worker; ..."]
+CMD ["python", "--version"]

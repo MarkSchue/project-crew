@@ -26,6 +26,8 @@ delivers the vertical slice "through explicit ports and test doubles").
 ## Responsibilities / public contract
 
 - `persistence.py`: `InMemoryRunStateStore`, `InMemoryEventLedger`.
+- `sqlite.py`: `SqliteRunStateStore`, `SqliteEventLedger` (Phase 6, M6.2)
+  — durable, swappable SQLite-backed implementations of the same ports.
 - `approval.py`: `InMemoryApprovalGateway` (optional `auto_approve`).
 - `policy.py`: `LocalDevPolicyDecisionPoint` — the non-production-
   permissive default bundle from `DEC-INCEPTION-001`, fail-closed.

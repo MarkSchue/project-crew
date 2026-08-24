@@ -43,6 +43,9 @@ class InMemoryRunStateStore:
         if order and attempt_id in order:
             order.remove(attempt_id)
 
+    def list_run_ids(self) -> list[str]:
+        return sorted({run_id for (run_id, _) in self._snapshots})
+
 
 class InMemoryEventLedger:
     """Implements the ``EventLedger`` port. Append-only: no method removes
