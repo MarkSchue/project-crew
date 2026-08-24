@@ -840,7 +840,7 @@ Equivalent Markdown documentation roots are required in the project-template rep
 ```yaml
 ---
 schema_version: code-doc/1.0
-doc_id: CODE-DOC-COMPILE-SPOC-001
+doc_id: CODE-DOC-COMPILE-SPOC-001-EXAMPLE
 code_unit_id: CODE-COMPILE-SPOC-SERVICE
 title: CompileSpocService
 code_ref: src/agent_platform/application/compile_spoc.py#CompileSpocService
@@ -1012,7 +1012,7 @@ Example front matter:
 ```yaml
 ---
 schema_version: test-case/1.1
-test_case_id: TC-RUNSTATE-RESUME-001
+test_case_id: TC-RUNSTATE-RESUME-001-EXAMPLE
 title: Resume a suspended run from the authoritative checkpoint
 test_type: integration
 status: active
@@ -1068,7 +1068,7 @@ Every execution creates a generated, immutable Markdown result. A rerun creates 
 ```yaml
 ---
 schema_version: test-result/1.1
-test_result_id: TR-001-TC-RUNSTATE-RESUME-001
+test_result_id: TR-EXAMPLE-TC-RUNSTATE-RESUME-001
 test_run_id: TEST-RUN-001
 test_case_id: TC-RUNSTATE-RESUME-001
 outcome: passed
