@@ -1,0 +1,6 @@
+capabilities:
+  - id: "architecture.solution_documentation"
+    version: "1.0.0"
+    description: "Produce implementation-ready architecture documentation."
+    risk_level: "low"
+    minimum_proficiency: 2

@@ -1,0 +1,66 @@
+capabilities:
+  - id: "architecture.requirement_traceability"
+    version: "1.0.0"
+    description: "Trace requirements to design decisions."
+    risk_level: "low"
+    minimum_proficiency: 2
+
+  - id: "architecture.solution_documentation"
+    version: "1.0.0"
+    description: "Produce implementation-ready architecture documentation."
+    risk_level: "low"
+    minimum_proficiency: 2
+
+  - id: "security.oauth2.design"
+    version: "1.0.0"
+    description: "Design OAuth2 and OIDC authentication flows."
+    parent: "security.identity"
+    aliases: ["oauth_design", "oidc_architecture"]
+    requires:
+      - "architecture.requirement_traceability"
+    risk_level: "high"
+    minimum_proficiency: 3
+    required_evaluations:
+      - "oauth2_design_eval"
+
+  - id: "security.threat_model"
+    version: "1.0.0"
+    description: "Produce a threat model for a system or component."
+    risk_level: "medium"
+    minimum_proficiency: 2
+
+  - id: "qa.acceptance_validation"
+    version: "1.0.0"
+    description: "Execute test cases and acceptance criteria against a produced artifact."
+    risk_level: "medium"
+    minimum_proficiency: 3
+
+  - id: "qa.traceability_check"
+    version: "1.0.0"
+    description: "Confirm every requirement in scope has covering, passing test cases."
+    risk_level: "low"
+    minimum_proficiency: 2
+
+  - id: "documentation.api_reference"
+    version: "1.0.0"
+    description: "Author API reference documentation."
+    risk_level: "low"
+    minimum_proficiency: 2
+
+  - id: "testing.unit_test_authoring"
+    version: "1.0.0"
+    description: "Author unit tests for a code change."
+    risk_level: "low"
+    minimum_proficiency: 2
+
+  - id: "security.secrets_management"
+    version: "1.0.0"
+    description: "Design secrets storage and rotation for a system."
+    risk_level: "high"
+    minimum_proficiency: 3
+
+  - id: "architecture.trust_boundary_analysis"
+    version: "1.0.0"
+    description: "Identify and document trust boundaries for a system."
+    risk_level: "medium"
+    minimum_proficiency: 2

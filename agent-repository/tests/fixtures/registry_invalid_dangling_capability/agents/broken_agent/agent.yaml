@@ -1,0 +1,16 @@
+schema_version: "agent/1.1"
+agent_id: "broken_agent"
+version: "1.0.0"
+name: "Broken Agent"
+status: "active"
+role: "Demonstrates a dangling capability reference."
+goal: "Fail registry loading with a specific error."
+capabilities:
+  - id: "nonexistent.capability"
+    proficiency: 3
+    evidence_refs: ["registry/agents/broken_agent/tests/eval.yaml"]
+allowed_tools: []
+allowed_classifications: ["internal"]
+health:
+  evaluation_suite: null
+  minimum_pass_rate: null

@@ -1,0 +1,10 @@
+workflow_id: "requirement_to_delivery"
+version: "1.2.0"
+implementation:
+  module: "agent_platform.execution_plane.flows.requirement_to_delivery"
+  class: "RequirementToDeliveryFlow"
+state_schema: "project-run-state/1.0"
+template_contract: "requirement-to-delivery/1.2"
+supported_execution_modes: ["atomic", "delegated", "crew", "workflow"]
+compatible_platform: ">=0.1.0,<1.0.0"
+status: "active"

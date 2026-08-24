@@ -1,0 +1,18 @@
+schema_version: "tool/1.0"
+tool_id: "repository.read"
+version: "1.0.0"
+description: "Read-only access to allowlisted repository paths."
+owner: "platform_engineering"
+side_effect_category: "read_only"
+required_permissions: ["repository.read"]
+network_destinations: []
+data_classifications: ["public", "internal", "confidential"]
+timeout_seconds: 30
+retry_policy:
+  max_attempts: 3
+  retry_on: ["transient_io_error"]
+idempotent: true
+audit_required: true
+test_evidence_refs: ["tests/contract/test_repository_read.py"]
+security_evidence_refs: ["tests/security/test_path_traversal.py"]
+status: "active"

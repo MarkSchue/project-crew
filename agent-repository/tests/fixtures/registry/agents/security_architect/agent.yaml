@@ -1,0 +1,34 @@
+schema_version: "agent/1.1"
+agent_id: "security_architect"
+version: "1.3.0"
+name: "Security Architecture Agent"
+status: "active"
+role: "Security architecture specialist"
+goal: "Produce traceable and policy-compliant security architecture outputs."
+prompt_ref: "registry/agents/security_architect/prompt.md"
+default_model_profile: "reasoning_high"
+capabilities:
+  - id: "security.oauth2.design"
+    proficiency: 4
+    evidence_refs: ["registry/agents/security_architect/tests/oauth2_eval.yaml"]
+  - id: "security.threat_model"
+    proficiency: 3
+    evidence_refs: ["registry/agents/security_architect/tests/threat_model_eval.yaml"]
+  - id: "architecture.requirement_traceability"
+    proficiency: 4
+    evidence_refs: ["registry/agents/security_architect/tests/traceability_eval.yaml"]
+allowed_tools:
+  - "repository.read"
+  - "repository.write_scoped"
+  - "knowledge.search"
+  - "security.policy_check"
+allowed_classifications: ["internal", "confidential"]
+delegation:
+  can_delegate: true
+  allowed_capability_prefixes: ["security.", "architecture."]
+  max_depth: 1
+human_escalation:
+  mandatory_for: ["policy_exception", "critical_risk"]
+health:
+  evaluation_suite: "security_architect_regression"
+  minimum_pass_rate: 0.90

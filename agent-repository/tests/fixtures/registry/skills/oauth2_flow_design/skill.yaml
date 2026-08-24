@@ -1,0 +1,8 @@
+schema_version: "skill/1.0"
+skill_id: "oauth2_flow_design"
+version: "1.0.0"
+name: "OAuth2 flow design"
+description: "Structured approach to designing OAuth2/OIDC authentication flows."
+instructions_ref: "registry/skills/oauth2_flow_design/instructions.md"
+capabilities: ["security.oauth2.design"]
+status: "active"

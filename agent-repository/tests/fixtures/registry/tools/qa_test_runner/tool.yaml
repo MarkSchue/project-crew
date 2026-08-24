@@ -1,0 +1,18 @@
+schema_version: "tool/1.0"
+tool_id: "qa.test_runner"
+version: "1.0.0"
+description: "Executes a declared test case in a sandbox and produces immutable TestEvidence."
+owner: "qa_engineering"
+side_effect_category: "external_call"
+required_permissions: ["sandbox.execute"]
+network_destinations: []
+data_classifications: ["internal"]
+timeout_seconds: 300
+retry_policy:
+  max_attempts: 1
+  retry_on: []
+idempotent: true
+audit_required: true
+test_evidence_refs: ["tests/contract/test_qa_test_runner.py"]
+security_evidence_refs: []
+status: "active"

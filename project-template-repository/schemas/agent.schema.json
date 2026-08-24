@@ -21,7 +21,6 @@
     "default_model_profile": { "type": "string" },
     "capabilities": {
       "type": "array",
-      "minItems": 1,
       "items": {
         "type": "object",
         "required": ["id", "proficiency"],
@@ -54,8 +53,8 @@
     "health": {
       "type": "object",
       "properties": {
-        "evaluation_suite": { "type": "string" },
-        "minimum_pass_rate": { "type": "number", "minimum": 0, "maximum": 1 }
+        "evaluation_suite": { "type": ["string", "null"] },
+        "minimum_pass_rate": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
       }
     }
   }

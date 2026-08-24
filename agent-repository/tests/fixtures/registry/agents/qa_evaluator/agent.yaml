@@ -1,0 +1,27 @@
+schema_version: "agent/1.1"
+agent_id: "qa_evaluator"
+version: "1.0.0"
+name: "QA Evaluator Agent"
+status: "active"
+role: "Quality assurance evaluator"
+goal: "Validate produced artifacts against acceptance criteria and linked test cases."
+prompt_ref: "registry/agents/qa_evaluator/prompt.md"
+default_model_profile: "reasoning_medium"
+capabilities:
+  - id: "qa.acceptance_validation"
+    proficiency: 4
+    evidence_refs: ["registry/agents/qa_evaluator/tests/acceptance_eval.yaml"]
+  - id: "qa.traceability_check"
+    proficiency: 4
+    evidence_refs: ["registry/agents/qa_evaluator/tests/traceability_check_eval.yaml"]
+allowed_tools:
+  - "repository.read"
+  - "qa.test_runner"
+allowed_classifications: ["internal", "confidential"]
+delegation:
+  can_delegate: false
+  allowed_capability_prefixes: []
+  max_depth: 0
+health:
+  evaluation_suite: "qa_evaluator_regression"
+  minimum_pass_rate: 0.95

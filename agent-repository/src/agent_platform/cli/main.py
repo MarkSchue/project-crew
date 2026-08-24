@@ -1,14 +1,11 @@
-"""`mas` CLI skeleton (plan milestone M1.8).
+"""`mas` CLI (plan milestones M1.8, M2.5).
 
-Implements the subset needed to exercise the Phase 0/1 foundation:
+Implements:
 
     mas project validate <path> [--schemas <dir>] [--mode fast|full]
     mas index rebuild <path>
-    mas registry validate
-
-`mas registry validate` is a stub until the Phase 2 registries land (plan
-section 7 / M2.x); it reports that no registry exists yet rather than
-failing, per the original M1.8 scope.
+    mas registry validate <registry-dir> [--schemas <dir>]
+    mas agent scaffold <agent-id> [--registry <registry-dir>]
 """
 
 from __future__ import annotations
@@ -19,6 +16,14 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from agent_platform.cli.agent_scaffold import scaffold_agent
+from agent_platform.registries.agent_registry import load_agent_registry
+from agent_platform.registries.base import RegistryError
+from agent_platform.registries.capability_registry import load_capability_registry
+from agent_platform.registries.model_registry import load_model_registry
+from agent_platform.registries.skill_registry import load_skill_registry
+from agent_platform.registries.tool_registry import load_tool_registry
+from agent_platform.registries.workflow_registry import load_workflow_registry
 from agent_platform.schemas.index_generator import rebuild_indexes
 from agent_platform.schemas.okf_linter import SchemaRegistry, lint_directory
 from agent_platform.schemas.xref_validator import validate_cross_references
@@ -27,9 +32,11 @@ app = typer.Typer(add_completion=False, help="Agent platform control-plane CLI."
 project_app = typer.Typer(add_completion=False, help="Project-level commands.")
 index_app = typer.Typer(add_completion=False, help="Generated-index commands.")
 registry_app = typer.Typer(add_completion=False, help="Registry commands.")
+agent_app = typer.Typer(add_completion=False, help="Agent commands.")
 app.add_typer(project_app, name="project")
 app.add_typer(index_app, name="index")
 app.add_typer(registry_app, name="registry")
+app.add_typer(agent_app, name="agent")
 
 console = Console()
 
@@ -96,10 +103,50 @@ def index_rebuild(
 
 
 @registry_app.command("validate")
-def registry_validate() -> None:
-    """Stub until Phase 2 registries (agent/capability/skill/tool/model) are
-    implemented; see plan milestones M2.1-M2.2."""
-    console.print("[yellow]no registry implemented yet (Phase 2 pending)[/yellow]")
+def registry_validate(
+    registry_dir: Path = typer.Argument(..., help="Path to a registry/ directory."),
+    schemas: Path = typer.Option(
+        _DEFAULT_SCHEMA_DIR, "--schemas", help="Directory containing *.schema.json files."
+    ),
+) -> None:
+    """Load and validate every registry (capabilities, agents, skills,
+    tools, models, workflows) under REGISTRY_DIR (plan M2.1-M2.2)."""
+    if not registry_dir.exists():
+        console.print(f"[red]Path does not exist:[/red] {registry_dir}")
+        raise typer.Exit(code=2)
+
+    schema_registry = SchemaRegistry(schemas)
+    try:
+        capability_registry = load_capability_registry(registry_dir, schema_registry)
+        agent_registry = load_agent_registry(registry_dir, schema_registry, capability_registry)
+        load_skill_registry(registry_dir, schema_registry)
+        load_tool_registry(registry_dir, schema_registry)
+        load_model_registry(registry_dir, schema_registry)
+        load_workflow_registry(registry_dir, schema_registry)
+    except RegistryError as exc:
+        table = Table(title="mas registry validate")
+        table.add_column("error")
+        for error in exc.errors:
+            table.add_row(error)
+        console.print(table)
+        raise typer.Exit(code=1) from exc
+
+    console.print(
+        f"[green]OK[/green] {len(capability_registry.entries)} capabilities, "
+        f"{len(agent_registry)} agents."
+    )
+
+
+@agent_app.command("scaffold")
+def agent_scaffold_command(
+    agent_id: str = typer.Argument(..., help="New agent id, e.g. security_architect."),
+    registry_dir: Path = typer.Option(
+        Path("registry"), "--registry", help="Path to the registry/ directory to scaffold into."
+    ),
+) -> None:
+    """Generate a draft agent scaffold (masterplan section 11.3, plan M2.5)."""
+    agent_dir = scaffold_agent(registry_dir, agent_id)
+    console.print(f"[green]scaffolded[/green] {agent_dir} (status: draft)")
 
 
 if __name__ == "__main__":

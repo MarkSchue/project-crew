@@ -2,16 +2,23 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://project-crew.local/schemas/capability.schema.json",
   "title": "Capability catalog entry",
-  "description": "Entry in registry/capabilities/capability_catalog.yaml (masterplan section 12).",
+  "description": "Entry in registry/capabilities/capability_catalog.yaml (masterplan section 12.1).",
   "type": "object",
-  "required": ["id", "name", "description"],
+  "required": ["id", "version", "description"],
   "additionalProperties": true,
   "properties": {
     "id": { "type": "string", "pattern": "^[a-z][a-z0-9_.]*$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
     "name": { "type": "string" },
     "description": { "type": "string" },
+    "parent": { "type": ["string", "null"] },
     "aliases": { "type": "array", "items": { "type": "string" } },
-    "depends_on": { "type": "array", "items": { "type": "string" } },
-    "risk_level": { "type": "string", "enum": ["low", "medium", "high"] }
+    "requires": { "type": "array", "items": { "type": "string" } },
+    "risk_level": { "type": "string", "enum": ["low", "medium", "high"] },
+    "minimum_proficiency": { "type": "integer", "minimum": 1, "maximum": 5 },
+    "required_evaluations": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["draft", "active", "deprecated"] },
+    "deprecated_by": { "type": ["string", "null"] }
   }
 }
+

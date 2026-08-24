@@ -1,0 +1,16 @@
+schema_version: "agent/1.1"
+agent_id: "no_evidence_agent"
+version: "1.0.0"
+name: "No Evidence Agent"
+status: "active"
+role: "Demonstrates a capability claim with no evidence_refs."
+goal: "Fail activation-readiness / evidence validation."
+capabilities:
+  - id: "architecture.solution_documentation"
+    proficiency: 3
+    evidence_refs: []
+allowed_tools: []
+allowed_classifications: ["internal"]
+health:
+  evaluation_suite: "no_evidence_agent_regression"
+  minimum_pass_rate: 0.8

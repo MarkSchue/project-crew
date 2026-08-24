@@ -1,0 +1,18 @@
+schema_version: "tool/1.0"
+tool_id: "repository.write_scoped"
+version: "1.0.0"
+description: "Scoped write access to manifest-approved repository paths."
+owner: "platform_engineering"
+side_effect_category: "write_scoped"
+required_permissions: ["repository.write"]
+network_destinations: []
+data_classifications: ["internal", "confidential"]
+timeout_seconds: 30
+retry_policy:
+  max_attempts: 2
+  retry_on: ["transient_io_error"]
+idempotent: false
+audit_required: true
+test_evidence_refs: ["tests/contract/test_repository_write_scoped.py"]
+security_evidence_refs: ["tests/security/test_path_traversal.py", "tests/security/test_symlink_escape.py"]
+status: "active"

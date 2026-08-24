@@ -1,0 +1,26 @@
+profiles:
+  - schema_version: "model-catalog/1.0"
+    profile_id: "reasoning_high"
+    provider: "example_provider"
+    model_id: "example-large-reasoning-v1"
+    context_window_tokens: 200000
+    supports_tool_use: true
+    supports_structured_output: true
+    cost_per_1k_input_tokens_usd: 0.01
+    cost_per_1k_output_tokens_usd: 0.03
+    data_residency: ["eu", "us"]
+    confidential_eligible: true
+    status: "active"
+
+  - schema_version: "model-catalog/1.0"
+    profile_id: "reasoning_medium"
+    provider: "example_provider"
+    model_id: "example-medium-v1"
+    context_window_tokens: 128000
+    supports_tool_use: true
+    supports_structured_output: true
+    cost_per_1k_input_tokens_usd: 0.003
+    cost_per_1k_output_tokens_usd: 0.009
+    data_residency: ["eu", "us"]
+    confidential_eligible: false
+    status: "active"

@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://project-crew.local/schemas/workflow_catalog.schema.json",
+  "title": "Workflow catalog entry",
+  "description": "Entry in registry/workflows/<workflow_id>/<version>.yaml (plan section 19.4, ADR-015).",
+  "type": "object",
+  "required": [
+    "workflow_id", "version", "implementation", "state_schema",
+    "template_contract", "supported_execution_modes", "compatible_platform", "status"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "workflow_id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "implementation": {
+      "type": "object",
+      "required": ["module", "class"],
+      "properties": {
+        "module": { "type": "string" },
+        "class": { "type": "string" }
+      }
+    },
+    "state_schema": { "type": "string" },
+    "template_contract": { "type": "string" },
+    "supported_execution_modes": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["atomic", "delegated", "crew", "workflow"] }
+    },
+    "compatible_platform": { "type": "string" },
+    "status": { "type": "string", "enum": ["draft", "active", "deprecated"] },
+    "deprecated_by": { "type": ["string", "null"] }
+  }
+}

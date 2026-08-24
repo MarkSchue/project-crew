@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://project-crew.local/schemas/model_catalog.schema.json",
+  "title": "Model catalog entry",
+  "description": "Entry in registry/models/model_catalog.yaml. Referenced by agent.default_model_profile and SPOC routing.model_override.",
+  "type": "object",
+  "required": ["schema_version", "profile_id", "provider", "model_id", "status"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": { "type": "string", "const": "model-catalog/1.0" },
+    "profile_id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "provider": { "type": "string" },
+    "model_id": { "type": "string" },
+    "context_window_tokens": { "type": "integer", "minimum": 1 },
+    "supports_tool_use": { "type": "boolean" },
+    "supports_structured_output": { "type": "boolean" },
+    "cost_per_1k_input_tokens_usd": { "type": "number", "minimum": 0 },
+    "cost_per_1k_output_tokens_usd": { "type": "number", "minimum": 0 },
+    "data_residency": { "type": "array", "items": { "type": "string" } },
+    "confidential_eligible": {
+      "type": "boolean",
+      "description": "Per DEC-INCEPTION-001: only providers flagged true may receive confidential-classified content."
+    },
+    "status": { "type": "string", "enum": ["draft", "active", "deprecated"] },
+    "deprecated_by": { "type": ["string", "null"] }
+  }
+}

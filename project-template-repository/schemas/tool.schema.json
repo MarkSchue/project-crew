@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://project-crew.local/schemas/tool.schema.json",
+  "title": "Tool contract",
+  "description": "Entry in registry/tools/<tool_id>/tool.yaml (masterplan section 14.1).",
+  "type": "object",
+  "required": [
+    "schema_version", "tool_id", "version", "description", "owner",
+    "side_effect_category", "required_permissions", "data_classifications",
+    "status"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": { "type": "string", "const": "tool/1.0" },
+    "tool_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.]*$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "description": { "type": "string" },
+    "owner": { "type": "string" },
+    "input_schema_ref": { "type": "string" },
+    "output_schema_ref": { "type": "string" },
+    "side_effect_category": {
+      "type": "string",
+      "enum": ["read_only", "write_scoped", "external_call", "destructive"]
+    },
+    "required_permissions": { "type": "array", "items": { "type": "string" } },
+    "network_destinations": { "type": "array", "items": { "type": "string" } },
+    "data_classifications": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["public", "internal", "confidential", "restricted"] }
+    },
+    "timeout_seconds": { "type": "integer", "minimum": 1 },
+    "retry_policy": {
+      "type": "object",
+      "properties": {
+        "max_attempts": { "type": "integer", "minimum": 1 },
+        "retry_on": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "idempotent": { "type": "boolean" },
+    "audit_required": { "type": "boolean" },
+    "test_evidence_refs": { "type": "array", "items": { "type": "string" } },
+    "security_evidence_refs": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["draft", "active", "deprecated"] },
+    "deprecated_by": { "type": ["string", "null"] }
+  }
+}

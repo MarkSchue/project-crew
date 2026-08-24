@@ -11,6 +11,10 @@ schemas:
   - schemas/spoc.schema.json
   - schemas/agent.schema.json
   - schemas/capability.schema.json
+  - schemas/skill.schema.json
+  - schemas/tool.schema.json
+  - schemas/model_catalog.schema.json
+  - schemas/workflow_catalog.schema.json
   - schemas/project.schema.json
   - schemas/run_event.schema.json
 compatible_platform: ">=0.1.0,<1.0.0"

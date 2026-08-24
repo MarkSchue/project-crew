@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://project-crew.local/schemas/skill.schema.json",
+  "title": "Skill definition",
+  "description": "Entry in registry/skills/<skill_id>/skill.yaml (masterplan section 7.1 registry layout).",
+  "type": "object",
+  "required": ["schema_version", "skill_id", "version", "name", "description", "status"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": { "type": "string", "const": "skill/1.0" },
+    "skill_id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "instructions_ref": { "type": "string" },
+    "capabilities": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Capability IDs this skill helps an agent satisfy."
+    },
+    "status": { "type": "string", "enum": ["draft", "active", "deprecated"] },
+    "deprecated_by": { "type": ["string", "null"] }
+  }
+}

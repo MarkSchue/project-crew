@@ -1,0 +1,8 @@
+schema_version: "skill/1.0"
+skill_id: "requirement_traceability_matrix"
+version: "1.0.0"
+name: "Requirement traceability matrix authoring"
+description: "Build and maintain a requirement-to-design traceability matrix."
+instructions_ref: "registry/skills/requirement_traceability_matrix/instructions.md"
+capabilities: ["architecture.requirement_traceability", "qa.traceability_check"]
+status: "active"

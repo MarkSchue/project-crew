@@ -1,0 +1,28 @@
+schema_version: "agent/1.1"
+agent_id: "architecture_writer"
+version: "1.0.0"
+name: "Architecture Writer Agent"
+status: "active"
+role: "Solution architecture documentation specialist"
+goal: "Produce clear, traceable architecture documentation."
+prompt_ref: "registry/agents/architecture_writer/prompt.md"
+default_model_profile: "reasoning_medium"
+capabilities:
+  - id: "architecture.solution_documentation"
+    proficiency: 4
+    evidence_refs: ["registry/agents/architecture_writer/tests/solution_doc_eval.yaml"]
+  - id: "architecture.requirement_traceability"
+    proficiency: 3
+    evidence_refs: ["registry/agents/architecture_writer/tests/traceability_eval.yaml"]
+allowed_tools:
+  - "repository.read"
+  - "repository.write_scoped"
+  - "knowledge.search"
+allowed_classifications: ["internal"]
+delegation:
+  can_delegate: false
+  allowed_capability_prefixes: []
+  max_depth: 0
+health:
+  evaluation_suite: "architecture_writer_regression"
+  minimum_pass_rate: 0.85
