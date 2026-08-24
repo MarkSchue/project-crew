@@ -1,0 +1,9 @@
+# Model policy (project skeleton placeholder)
+
+# Per-project model routing policy. Only providers flagged
+# `confidential_eligible: true` may receive `confidential` content
+# (DEC-INCEPTION-001 data-classification matrix).
+model_policy:
+  version: "0.1.0"
+  default_profile: reasoning_medium
+  overrides: {}

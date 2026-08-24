@@ -1,0 +1,30 @@
+name: Validate
+
+# Schema/lint enforcement for the template repository (plan milestone
+# M1.9). Placeholder-level for now: the `mas` CLI lives in
+# `agent-repository`, which is a separate repository per ADR-019; once a
+# published agent-repository release is installable, the pip install step
+# below pins it instead of a local path.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate-schemas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate all JSON Schemas parse
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for schema in sorted(Path("schemas").glob("*.schema.json")):
+              json.loads(schema.read_text(encoding="utf-8"))
+              print("ok", schema)
+          PY

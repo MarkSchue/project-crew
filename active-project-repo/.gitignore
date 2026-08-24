@@ -1,0 +1,11 @@
+# Secrets and local environment (never committed — DEC-INCEPTION-001)
+.env
+.env.*
+
+# Python tooling
+__pycache__/
+*.pyc
+.venv/
+
+# OS/editor noise
+.DS_Store

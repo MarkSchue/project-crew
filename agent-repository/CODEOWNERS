@@ -1,0 +1,9 @@
+# CODEOWNERS (plan milestone M0.4)
+
+# Default owner of record for all registry/code/docs entries until
+# specific entries are reassigned (DEC-INCEPTION-001 ownership answer).
+# The branch-protection rules themselves (required review, required status
+# checks, no force-push) are applied in GitHub repository settings, not in
+# this file.
+
+* @MarkSchue

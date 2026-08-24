@@ -1,0 +1,9 @@
+# Quality policy (project skeleton placeholder)
+
+# Per-project quality gates; may only tighten the platform defaults in
+# agent-repository/docs/definition_of_done.md and the release gates in
+# plan section 18.11.
+quality_policy:
+  version: "0.1.0"
+  minimum_documentation_coverage: 1.0
+  require_passing_test_cases: true

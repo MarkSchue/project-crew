@@ -1,0 +1,24 @@
+schema_version: project/1.0
+project_id: PRJ-001
+name: Example Project
+status: planning
+classification: internal
+goal:
+  statement: "Deliver the agreed target outcome."
+  target_state: "A measurable description of the desired end state."
+  business_value: "Why the project exists."
+outcomes:
+  - id: OUT-001
+    statement: "A measurable result."
+    success_measure_ref: SC-001
+success_criteria:
+  - id: SC-001
+    metric: acceptance_rate
+    operator: gte
+    target: 0.95
+scope:
+  in_scope: []
+  out_of_scope: []
+assumptions: []
+constraints: []
+charter_ref: public/charter/project_charter.md

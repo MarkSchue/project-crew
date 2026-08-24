@@ -1,8 +1,10 @@
-"""`mas` CLI (plan milestones M1.8, M2.5).
+"""`mas` CLI (plan milestones M1.8, M1.9, M2.5).
 
 Implements:
 
+    mas project init <path> [--template <version>]
     mas project validate <path> [--schemas <dir>] [--mode fast|full]
+    mas project migrate <path>
     mas index rebuild <path>
     mas registry validate <registry-dir> [--schemas <dir>]
     mas agent scaffold <agent-id> [--registry <registry-dir>]
@@ -10,6 +12,8 @@ Implements:
 
 from __future__ import annotations
 
+import hashlib
+import shutil
 from pathlib import Path
 
 import typer
@@ -17,6 +21,7 @@ from rich.console import Console
 from rich.table import Table
 
 from agent_platform.cli.agent_scaffold import scaffold_agent
+from agent_platform.migrations.runner import run_pending_migrations
 from agent_platform.registries.agent_registry import load_agent_registry
 from agent_platform.registries.base import RegistryError
 from agent_platform.registries.capability_registry import load_capability_registry
@@ -40,9 +45,9 @@ app.add_typer(agent_app, name="agent")
 
 console = Console()
 
-_DEFAULT_SCHEMA_DIR = (
-    Path(__file__).resolve().parents[4] / "project-template-repository" / "schemas"
-)
+_WORKSPACE_ROOT = Path(__file__).resolve().parents[4]
+_DEFAULT_SCHEMA_DIR = _WORKSPACE_ROOT / "project-template-repository" / "schemas"
+_DEFAULT_TEMPLATE_DIR = _WORKSPACE_ROOT / "project-template-repository" / "project_skeleton"
 
 
 @project_app.command("validate")
@@ -85,6 +90,55 @@ def project_validate(
 
     if not lint_result.ok or not xref_ok:
         raise typer.Exit(code=1)
+
+
+@project_app.command("init")
+def project_init(
+    path: Path = typer.Argument(..., help="Directory to create the new active project in."),
+    template: str = typer.Option(
+        "0.1.0", "--template", help="Template version to initialize from."
+    ),
+    template_dir: Path = typer.Option(
+        _DEFAULT_TEMPLATE_DIR, "--template-dir", help="Path to the project_skeleton template directory."
+    ),
+) -> None:
+    """Generate a new active-project repository from the pinned template
+    (plan milestone M1.8). Writes a template.lock recording the exact
+    template version and content hash."""
+    if not template_dir.exists():
+        console.print(f"[red]Template directory does not exist:[/red] {template_dir}")
+        raise typer.Exit(code=2)
+    if Path(path).exists() and any(Path(path).iterdir()):
+        console.print(f"[red]Target directory is not empty:[/red] {path}")
+        raise typer.Exit(code=2)
+
+    shutil.copytree(template_dir, path)
+    content_hash = _hash_directory(template_dir)
+    lock_path = Path(path) / "template.lock"
+    lock_path.write_text(
+        f"template_version: \"{template}\"\n"
+        f"template_content_hash: \"sha256:{content_hash}\"\n"
+        f"generated_at: \"2026-08-24T09:00:00Z\"\n",
+        encoding="utf-8",
+    )
+    console.print(f"[green]initialized[/green] {path} from template {template}")
+    console.print(f"[green]template.lock[/green] content hash sha256:{content_hash}")
+
+
+@project_app.command("migrate")
+def project_migrate(
+    path: Path = typer.Argument(..., help="Project directory to migrate."),
+) -> None:
+    """Apply pending project migrations (plan milestone M1.7/M1.9)."""
+    if not Path(path).exists():
+        console.print(f"[red]Path does not exist:[/red] {path}")
+        raise typer.Exit(code=2)
+    newly_applied = run_pending_migrations(path)
+    if newly_applied:
+        for migration in newly_applied:
+            console.print(f"[green]applied[/green] {migration}")
+    else:
+        console.print("[green]no pending migrations[/green]")
 
 
 @index_app.command("rebuild")
@@ -147,6 +201,20 @@ def agent_scaffold_command(
     """Generate a draft agent scaffold (masterplan section 11.3, plan M2.5)."""
     agent_dir = scaffold_agent(registry_dir, agent_id)
     console.print(f"[green]scaffolded[/green] {agent_dir} (status: draft)")
+
+
+def _hash_directory(directory: Path) -> str:
+    """Deterministic content hash of a template directory: sha256 over a
+    sorted list of (relative path, file sha256) pairs."""
+    file_hashes = []
+    for path in sorted(Path(directory).rglob("*")):
+        if not path.is_file():
+            continue
+        file_digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        rel = path.relative_to(directory).as_posix()
+        file_hashes.append(f"{rel}:{file_digest}")
+    combined = "\n".join(file_hashes)
+    return hashlib.sha256(combined.encode("utf-8")).hexdigest()
 
 
 if __name__ == "__main__":

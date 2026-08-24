@@ -1,0 +1,28 @@
+name: Validate
+
+# Project validation for an active-project repository (plan milestone
+# M1.9). Placeholder-level for now: `mas` is installed from the
+# agent-repository, which is a separate repository (ADR-019). Replace the
+# install step with a pinned published release once available.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate-project:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install mas (pinned release TBD)
+        run: |
+          python -m pip install --upgrade pip
+          echo "// TODO: pip install agent-platform from a pinned release"
+      - name: Validate OKF content
+        run: |
+          # mas project validate public
+          echo "// TODO: enable once agent-platform is installable from a release"

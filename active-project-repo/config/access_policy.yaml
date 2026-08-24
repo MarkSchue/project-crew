@@ -1,0 +1,9 @@
+# Access policy (project skeleton placeholder)
+
+# Per-project access policy overrides/extends the platform policy bundle
+# (agent-repository/policies, ADR-016). Filled in by the project owner.
+access_policy:
+  version: "0.1.0"
+  # allowed_classifications per agent/role are declared in the registry;
+  # this file may only further restrict them, never broaden them.
+  restrictions: []

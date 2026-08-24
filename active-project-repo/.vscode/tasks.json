@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "mas project validate",
+      "type": "shell",
+      "command": "mas project validate public",
+      "group": "test",
+      "problemMatcher": []
+    }
+  ]
+}

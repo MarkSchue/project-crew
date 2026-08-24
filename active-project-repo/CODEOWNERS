@@ -1,0 +1,6 @@
+# CODEOWNERS (plan milestone M0.4)
+
+# Default owner of record for this active project (DEC-INCEPTION-001).
+# Branch-protection rules are applied in GitHub repository settings.
+
+* @MarkSchue

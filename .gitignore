@@ -30,6 +30,13 @@ htmlcov/
 *.code-workspace
 .idea/
 
+# The repository skeletons ship .vscode as a first-class, committed
+# artifact (masterplan section 7.3), so re-include those two trees.
+!active-project-repo/.vscode/
+!active-project-repo/.vscode/*
+!project-template-repository/project_skeleton/.vscode/
+!project-template-repository/project_skeleton/.vscode/*
+
 # OS files
 .DS_Store
 Thumbs.db

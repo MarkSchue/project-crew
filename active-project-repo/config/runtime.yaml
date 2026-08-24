@@ -1,0 +1,8 @@
+# Runtime configuration (project skeleton placeholder)
+
+# Resolved by `mas project init` / control plane; keys and defaults are
+# documented in agent-repository/docs/configuration (not yet written).
+
+runtime:
+  execution_backend: local
+  workflow_default: requirement_to_delivery@1.2.0
