@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://project-crew.local/schemas/run_event.schema.json",
+  "title": "Run event",
+  "description": "One append-only JSONL event record (masterplan section 16.1, plan section 22.2).",
+  "type": "object",
+  "required": [
+    "schema_version", "event_id", "run_id", "attempt_id", "event_type",
+    "timestamp", "actor", "classification"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": { "type": "string", "const": "run-event/1.0" },
+    "event_id": { "type": "string" },
+    "run_id": { "type": "string" },
+    "attempt_id": { "type": "string" },
+    "step_id": { "type": ["string", "null"] },
+    "correlation_id": { "type": ["string", "null"] },
+    "causation_id": { "type": ["string", "null"] },
+    "aggregate_type": { "type": "string" },
+    "aggregate_id": { "type": "string" },
+    "aggregate_version": { "type": "integer", "minimum": 1 },
+    "event_type": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "actor": {
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {
+        "type": { "type": "string", "enum": ["human", "agent", "system"] },
+        "id": { "type": "string" }
+      }
+    },
+    "policy_decision_id": { "type": ["string", "null"] },
+    "classification": {
+      "type": "string",
+      "enum": ["public", "internal", "confidential", "restricted"]
+    },
+    "payload": { "type": "object" },
+    "result": { "type": "string" },
+    "error_code": { "type": ["string", "null"] },
+    "integrity_hash": { "type": "string" }
+  }
+}

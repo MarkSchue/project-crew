@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://project-crew.local/schemas/agent.schema.json",
+  "title": "Agent definition",
+  "description": "Registry agent definition (masterplan section 11.1).",
+  "type": "object",
+  "required": [
+    "schema_version", "agent_id", "version", "name", "status",
+    "role", "goal", "capabilities", "allowed_tools", "allowed_classifications"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": { "type": "string", "const": "agent/1.1" },
+    "agent_id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "name": { "type": "string" },
+    "status": { "type": "string", "enum": ["draft", "active", "deprecated", "quarantined"] },
+    "role": { "type": "string" },
+    "goal": { "type": "string" },
+    "prompt_ref": { "type": "string" },
+    "default_model_profile": { "type": "string" },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "proficiency"],
+        "properties": {
+          "id": { "type": "string" },
+          "proficiency": { "type": "integer", "minimum": 1, "maximum": 5 },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "allowed_tools": { "type": "array", "items": { "type": "string" } },
+    "allowed_classifications": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["public", "internal", "confidential", "restricted"] }
+    },
+    "delegation": {
+      "type": "object",
+      "properties": {
+        "can_delegate": { "type": "boolean" },
+        "allowed_capability_prefixes": { "type": "array", "items": { "type": "string" } },
+        "max_depth": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "human_escalation": {
+      "type": "object",
+      "properties": {
+        "mandatory_for": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "health": {
+      "type": "object",
+      "properties": {
+        "evaluation_suite": { "type": "string" },
+        "minimum_pass_rate": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

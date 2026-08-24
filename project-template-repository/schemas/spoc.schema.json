@@ -1,0 +1,175 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://project-crew.local/schemas/spoc.schema.json",
+  "title": "SPOC contract",
+  "description": "Supplier-Procedure-Output-Consumer contract front matter (masterplan section 10.2).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "type",
+    "title",
+    "status",
+    "project_id",
+    "owner",
+    "created_at",
+    "classification",
+    "workflow",
+    "supplier",
+    "procedure",
+    "output",
+    "consumer",
+    "retry_policy"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": { "type": "string", "const": "spoc/1.1" },
+    "id": { "type": "string", "pattern": "^SPOC-[A-Za-z0-9_-]+$" },
+    "type": { "type": "string", "const": "spoc" },
+    "title": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft", "validated", "ready", "leased", "running",
+        "waiting_for_human", "review", "accepted", "closed",
+        "retry_pending", "blocked", "rejected", "cancelled", "dead_letter"
+      ]
+    },
+    "project_id": { "type": "string" },
+    "priority": { "type": "string" },
+    "owner": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "classification": {
+      "type": "string",
+      "enum": ["public", "internal", "confidential", "restricted"]
+    },
+    "workflow": { "type": "string" },
+    "alignment": {
+      "type": "object",
+      "description": "Traceability to project goal/outcomes (plan section 19.1).",
+      "properties": {
+        "project_goal_ref": { "type": "string" },
+        "outcome_refs": { "type": "array", "items": { "type": "string" } },
+        "requirement_refs": { "type": "array", "items": { "type": "string" } },
+        "milestone_refs": { "type": "array", "items": { "type": "string" } },
+        "contribution_statement": { "type": "string" }
+      }
+    },
+    "supplier": {
+      "type": "object",
+      "required": ["provided_by", "inputs"],
+      "properties": {
+        "provided_by": { "type": "string" },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["ref", "required"],
+            "properties": {
+              "ref": { "type": "string" },
+              "required": { "type": "boolean" },
+              "expected_hash": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "procedure": {
+      "type": "object",
+      "required": ["objective"],
+      "properties": {
+        "objective": { "type": "string" },
+        "instructions_ref": { "type": "string" },
+        "explicit_capabilities": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "allow_capability_inference": { "type": "boolean" },
+        "inferred_capability_approval_threshold": { "type": "string" },
+        "execution_mode": {
+          "type": "string",
+          "enum": ["atomic", "delegated", "crew", "workflow"],
+          "description": "plan section 19.3"
+        },
+        "constraints": {
+          "type": "object",
+          "properties": {
+            "max_runtime_seconds": { "type": "integer", "minimum": 1 },
+            "max_delegation_depth": { "type": "integer", "minimum": 0 },
+            "max_child_agent_calls": { "type": "integer", "minimum": 0 },
+            "max_total_cost_usd": { "type": "number", "minimum": 0 },
+            "network_access": { "type": "string" },
+            "code_execution": { "type": "string" }
+          }
+        },
+        "prohibited_actions": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "required": ["artifacts", "acceptance_criteria"],
+      "properties": {
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["target", "schema", "required"],
+            "properties": {
+              "target": { "type": "string" },
+              "schema": { "type": "string" },
+              "required": { "type": "boolean" }
+            }
+          }
+        },
+        "acceptance_criteria": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "statement", "validator"],
+            "properties": {
+              "id": { "type": "string" },
+              "statement": { "type": "string" },
+              "validator": { "type": "string" },
+              "test_case_refs": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Should be non-empty; enforced as a lint warning (OKF-COVERAGE-002), not a hard schema failure, per M0.1 decision default."
+              }
+            }
+          }
+        }
+      }
+    },
+    "consumer": {
+      "type": "object",
+      "required": ["next_role", "on_success", "on_reject"],
+      "properties": {
+        "next_role": { "type": "string" },
+        "on_success": { "type": "string" },
+        "on_reject": { "type": "string" },
+        "approval_policy": { "type": "string" }
+      }
+    },
+    "routing": {
+      "type": "object",
+      "properties": {
+        "preferred_agent": { "type": ["string", "null"] },
+        "excluded_agents": { "type": "array", "items": { "type": "string" } },
+        "model_override": { "type": ["string", "null"] },
+        "data_residency": { "type": "string" }
+      }
+    },
+    "retry_policy": {
+      "type": "object",
+      "required": ["max_attempts"],
+      "properties": {
+        "max_attempts": { "type": "integer", "minimum": 1 },
+        "retry_on": { "type": "array", "items": { "type": "string" } },
+        "do_not_retry_on": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

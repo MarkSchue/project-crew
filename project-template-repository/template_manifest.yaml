@@ -1,0 +1,17 @@
+schema_version: "template-manifest/1.0"
+template_name: "project-template-repository"
+template_version: "0.1.0"
+description: >
+  Project-independent blueprints, governance rules, schemas, workflow
+  templates, and quality gates for the CrewAI multi-agent project delivery
+  platform (masterplan section 7.2).
+schemas:
+  - schemas/okf.schema.json
+  - schemas/relations.schema.json
+  - schemas/spoc.schema.json
+  - schemas/agent.schema.json
+  - schemas/capability.schema.json
+  - schemas/project.schema.json
+  - schemas/run_event.schema.json
+compatible_platform: ">=0.1.0,<1.0.0"
+status: active

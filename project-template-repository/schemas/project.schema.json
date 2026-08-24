@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://project-crew.local/schemas/project.schema.json",
+  "title": "Project control document",
+  "description": "project.yaml minimum control document (plan section 19.1).",
+  "type": "object",
+  "required": [
+    "schema_version", "project_id", "name", "status", "classification", "goal"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": { "type": "string", "const": "project/1.0" },
+    "project_id": { "type": "string" },
+    "name": { "type": "string" },
+    "status": { "type": "string" },
+    "classification": {
+      "type": "string",
+      "enum": ["public", "internal", "confidential", "restricted"]
+    },
+    "goal": {
+      "type": "object",
+      "required": ["statement", "target_state", "business_value"],
+      "properties": {
+        "statement": { "type": "string" },
+        "target_state": { "type": "string" },
+        "business_value": { "type": "string" }
+      }
+    },
+    "outcomes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "statement"],
+        "properties": {
+          "id": { "type": "string" },
+          "statement": { "type": "string" },
+          "success_measure_ref": { "type": "string" }
+        }
+      }
+    },
+    "success_criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "metric", "operator", "target"],
+        "properties": {
+          "id": { "type": "string" },
+          "metric": { "type": "string" },
+          "operator": { "type": "string", "enum": ["gte", "lte", "gt", "lt", "eq"] },
+          "target": { "type": "number" }
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "in_scope": { "type": "array", "items": { "type": "string" } },
+        "out_of_scope": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "assumptions": { "type": "array", "items": { "type": "string" } },
+    "constraints": { "type": "array", "items": { "type": "string" } },
+    "charter_ref": { "type": "string" }
+  }
+}

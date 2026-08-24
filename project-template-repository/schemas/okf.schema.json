@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://project-crew.local/schemas/okf.schema.json",
+  "title": "Open Knowledge Format (OKF) front matter",
+  "description": "Mandatory front matter for every OKF Markdown artifact (masterplan section 9.1).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "type",
+    "title",
+    "status",
+    "classification",
+    "owner",
+    "created_at",
+    "updated_at",
+    "tags",
+    "source_refs",
+    "relations",
+    "provenance"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "okf/1.1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]*$",
+      "description": "Globally unique inside a project (masterplan section 9.2)."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "concept",
+        "architecture_decision",
+        "requirement",
+        "user_story",
+        "epic",
+        "test_case",
+        "test_result",
+        "spoc",
+        "decision",
+        "risk",
+        "issue",
+        "dependency",
+        "deliverable",
+        "acceptance",
+        "status_report",
+        "run_summary"
+      ]
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string" },
+    "status": { "type": "string", "minLength": 1 },
+    "classification": {
+      "type": "string",
+      "enum": ["public", "internal", "confidential", "restricted"]
+    },
+    "owner": { "type": "string", "minLength": 1 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "valid_from": { "type": "string" },
+    "review_after": { "type": "string" },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "source_refs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "relations": {
+      "type": "array",
+      "items": { "$ref": "relations.schema.json" }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["created_by_type", "created_by_id"],
+      "properties": {
+        "created_by_type": {
+          "type": "string",
+          "enum": ["human", "agent", "system"]
+        },
+        "created_by_id": { "type": "string" },
+        "run_id": { "type": ["string", "null"] }
+      }
+    },
+    "content_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "Calculated after canonicalization and excluded from the hash input itself (masterplan section 9.2)."
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "user_story" } } },
+      "then": {
+        "description": "OKF-COVERAGE-001 is enforced by the linter, not the schema, so the specific lint code can be reported. See okf_linter.py."
+      }
+    }
+  ]
+}

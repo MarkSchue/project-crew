@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://project-crew.local/schemas/relations.schema.json",
+  "title": "OKF relation",
+  "description": "Controlled vocabulary for OKF relations[] entries (masterplan section 9.3).",
+  "type": "object",
+  "required": ["type", "target"],
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "depends_on",
+        "blocks",
+        "implements",
+        "satisfies",
+        "derived_from",
+        "supersedes",
+        "contradicts",
+        "validates",
+        "produces",
+        "consumes",
+        "owned_by",
+        "related_to",
+        "generated_by",
+        "evidenced_by",
+        "reports_on",
+        "part_of",
+        "tested_by"
+      ]
+    },
+    "target": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The OKF `id` of the target artifact. Resolved by the xref validator, not by file path."
+    }
+  }
+}

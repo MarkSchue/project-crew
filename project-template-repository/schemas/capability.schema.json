@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://project-crew.local/schemas/capability.schema.json",
+  "title": "Capability catalog entry",
+  "description": "Entry in registry/capabilities/capability_catalog.yaml (masterplan section 12).",
+  "type": "object",
+  "required": ["id", "name", "description"],
+  "additionalProperties": true,
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_.]*$" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "aliases": { "type": "array", "items": { "type": "string" } },
+    "depends_on": { "type": "array", "items": { "type": "string" } },
+    "risk_level": { "type": "string", "enum": ["low", "medium", "high"] }
+  }
+}
