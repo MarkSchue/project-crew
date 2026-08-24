@@ -1,8 +1,0 @@
-Phase 7: project-management workflows (M7.1-M7.6)
-
-- execution_plane/flows: intake, planning baseline, requirement_to_delivery facade, change_request, risk_escalation, project_closure, OKF render helper
-- execution_plane/raid: RAID/decision rendering + dependency blocks gate; wired blocked_check into CompileSpocService
-- execution_plane/status_report_generator: OKF status reports with zero-unsourced-claims check
-- project-template-repository/workflows: six workflow YAML templates (intake, planning, requirement_to_delivery, change_request, risk_escalation, closure)
-- tests: tests/unit/test_project_workflows.py (18 tests); full suite 157 passed, 2 skipped
-- docs: flows/module.md, raid.md, status_report_generator.md, updated execution_plane module + index
