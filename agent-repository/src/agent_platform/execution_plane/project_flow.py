@@ -18,6 +18,7 @@ subclass behind the same ports).
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -40,6 +41,7 @@ from agent_platform.domain.run import (
 )
 from agent_platform.execution_plane.qa_gate import qa_validation_against_test_cases
 from agent_platform.schemas.index_generator import rebuild_indexes
+from agent_platform.telemetry.metrics import MetricsRegistry
 from agent_platform.telemetry.run_summary import generate_run_summary_markdown
 
 # Terminal/gate statuses at which the step loop stops early rather than
@@ -50,6 +52,16 @@ _EARLY_EXIT_STATUSES = {
     RunStatus.DEAD_LETTER,
     RunStatus.REJECTED,
     RunStatus.CANCELLED,
+}
+
+# Terminal statuses counted as a completed run for metrics.
+_TERMINAL_STATUSES = {
+    RunStatus.CLOSED,
+    RunStatus.ACCEPTED,
+    RunStatus.BLOCKED,
+    RunStatus.REJECTED,
+    RunStatus.CANCELLED,
+    RunStatus.DEAD_LETTER,
 }
 
 
@@ -87,6 +99,7 @@ class ProjectExecutionFlow:
         tool_executor: ToolExecutor,
         clock: Clock,
         id_generator: IdGenerator,
+        metrics: MetricsRegistry | None = None,
     ) -> None:
         self.run_state_store = run_state_store
         self.event_ledger = event_ledger
@@ -95,6 +108,7 @@ class ProjectExecutionFlow:
         self.tool_executor = tool_executor
         self.clock = clock
         self.id_generator = id_generator
+        self.metrics = metrics
 
     # -- public API ---------------------------------------------------
 
@@ -187,11 +201,15 @@ class ProjectExecutionFlow:
             ),
         ]
 
+        started = time.monotonic()
+        was_terminal = state.status in _TERMINAL_STATUSES
+
         for step_id, step_fn in steps:
             if cancellation_token and cancellation_token.is_cancelled():
                 state.status = RunStatus.CANCELLED
                 self._emit(state, "cancellation", "run_cancelled", {})
                 self._save(state)
+                self._record_terminal_metrics(state, started, was_terminal)
                 return state
 
             if state.has_completed(step_id):
@@ -204,7 +222,29 @@ class ProjectExecutionFlow:
             if state.status in _EARLY_EXIT_STATUSES:
                 break
 
+        self._record_terminal_metrics(state, started, was_terminal)
         return state
+
+    def _record_terminal_metrics(
+        self, state: ProjectRunState, started: float, was_terminal: bool
+    ) -> None:
+        if self.metrics is None:
+            return
+        self.metrics.observe(
+            "run_duration_seconds",
+            time.monotonic() - started,
+            labels={"workflow": state.manifest.workflow_id},
+        )
+        if state.status in _TERMINAL_STATUSES and not was_terminal:
+            self.metrics.inc(
+                "run_completion_total",
+                labels={"status": state.status.value, "workflow": state.manifest.workflow_id},
+            )
+            if state.status is RunStatus.DEAD_LETTER:
+                self.metrics.inc(
+                    "run_dead_letter_total",
+                    labels={"workflow": state.manifest.workflow_id},
+                )
 
     def _step_load_run_manifest(self, state: ProjectRunState) -> None:
         self._emit(state, "load_run_manifest", "run_manifest_loaded", {"manifest_hash": state.manifest.manifest_hash})

@@ -1,0 +1,18 @@
+schema_version: "evaluation-dataset/1.0"
+capability_id: "testing.unit_test_authoring"
+model_version: "fake-model/0.1"
+prompt_version: "eval-prompt/0.1"
+baseline_pass_rate: 1.0
+minimum_pass_rate: 0.8
+cases:
+  - name: covers_happy_and_error_paths
+    input:
+      change_kind: new_function
+    golden_output:
+      result:
+        tests_present: true
+      behaviors: ["covers_happy_path", "covers_error_path", "isolates_external_calls"]
+    expected_properties:
+      result.tests_present: true
+    required_behaviors: ["covers_happy_path", "covers_error_path"]
+    prohibited_behaviors: ["testless_change"]

@@ -1,0 +1,18 @@
+schema_version: "evaluation-dataset/1.0"
+capability_id: "architecture.trust_boundary_analysis"
+model_version: "fake-model/0.1"
+prompt_version: "eval-prompt/0.1"
+baseline_pass_rate: 1.0
+minimum_pass_rate: 0.8
+cases:
+  - name: identifies_all_trust_boundaries
+    input:
+      external_interfaces: 2
+    golden_output:
+      result:
+        boundary_count_gt_zero: true
+      behaviors: ["lists_trust_boundaries", "assigns_trust_levels"]
+    expected_properties:
+      result.boundary_count_gt_zero: true
+    required_behaviors: ["lists_trust_boundaries"]
+    prohibited_behaviors: ["boundary_omitted"]

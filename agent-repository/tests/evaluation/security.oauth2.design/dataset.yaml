@@ -1,0 +1,18 @@
+schema_version: "evaluation-dataset/1.0"
+capability_id: "security.oauth2.design"
+model_version: "fake-model/0.1"
+prompt_version: "eval-prompt/0.1"
+baseline_pass_rate: 1.0
+minimum_pass_rate: 0.8
+cases:
+  - name: designs_confidential_client_flow
+    input:
+      client_type: confidential
+    golden_output:
+      result:
+        pkce_required: true
+      behaviors: ["specifies_authorization_code_flow", "uses_pkce"]
+    expected_properties:
+      result.pkce_required: true
+    required_behaviors: ["specifies_authorization_code_flow", "uses_pkce"]
+    prohibited_behaviors: ["stores_plaintext_secret"]

@@ -1,0 +1,6 @@
+{
+  "full_flow_run_seconds": 0.001341,
+  "registry_load_seconds": 0.029796,
+  "spoc_compile_seconds": 0.000663,
+  "sqlite_50_saves_and_appends_seconds": 0.014144
+}

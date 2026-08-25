@@ -1,0 +1,18 @@
+schema_version: "evaluation-dataset/1.0"
+capability_id: "security.secrets_management"
+model_version: "fake-model/0.1"
+prompt_version: "eval-prompt/0.1"
+baseline_pass_rate: 1.0
+minimum_pass_rate: 0.8
+cases:
+  - name: designs_rotation_and_managed_store
+    input:
+      secret_types: [api_key, db_password]
+    golden_output:
+      result:
+        rotation_required: true
+      behaviors: ["recommends_rotation", "references_managed_secret_store"]
+    expected_properties:
+      result.rotation_required: true
+    required_behaviors: ["recommends_rotation", "references_managed_secret_store"]
+    prohibited_behaviors: ["recommends_hardcoded_secret"]

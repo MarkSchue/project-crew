@@ -1,0 +1,42 @@
+# Platform alert rules (plan milestone M8.1, masterplan section 16.4).
+# Safety-relevant families (budget, dead-letter, policy denial) get alerts,
+# plus the approval-lead-time SLA. Consumed by Prometheus; the dashboard in
+# ops/dashboards/platform.json visualizes the same metric families.
+groups:
+  - name: project-crew-safety
+    rules:
+      - alert: BudgetExhausted
+        expr: increase(budget_exhausted_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "A run exceeded its declared budget limit"
+          description: "budget_exhausted_total increased over the last 5 minutes; check the affected run."
+
+      - alert: DeadLetterRateSpike
+        expr: rate(run_dead_letter_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Dead-letter rate is elevated"
+          description: "Dead-letter rate above 0.1/s for 5 minutes; investigate failing runs."
+
+      - alert: PolicyDenialSpike
+        expr: rate(policy_denial_total[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Policy denial rate is elevated"
+          description: "Policy denials above 1/s for 5 minutes; a misconfigured agent may be repeatedly denied."
+
+      - alert: ApprovalLeadTimeSLA
+        expr: histogram_quantile(0.9, rate(approval_lead_time_seconds_bucket[15m])) > 3600
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Approval lead-time SLA breach"
+          description: "p90 approval lead time exceeds 1 hour; human approvers may be overloaded."

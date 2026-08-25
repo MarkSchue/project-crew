@@ -25,7 +25,9 @@ strategy). This file is currently maintained by hand; a `mas docs` generator
   surface implemented yet).
 - `security/` — see [`agent-repository/docs/security/threat_model.md`](security/threat_model.md)
   (M0.3 threat model).
-- `operations/` — not yet applicable (no deployment/runbook surface yet).
+- [`operations/`](operations/backup_restore.md) — backup/restore, retention
+  policy, incident runbook, and the performance/cost report (Phase 8,
+  M8.4-M8.5).
 - [`testing/`](testing/) — test strategy summary.
 - `generated/` — reserved for reproducible projections (none yet).
 - [`glossary.md`](glossary.md) — controlled platform vocabulary.
@@ -42,7 +44,9 @@ strategy). This file is currently maintained by hand; a `mas docs` generator
 | `agent_platform.application.ports` | [module.md](implementation/agent_platform/application/ports/module.md) | Phase 3: application ports (plan section 20.1) |
 | `agent_platform.adapters` | [module.md](implementation/agent_platform/adapters/module.md) | Phase 3: in-memory/local test-double adapters behind the ports above |
 | `agent_platform.execution_plane` | [module.md](implementation/agent_platform/execution_plane/module.md) + [ProjectExecutionFlow.md](implementation/agent_platform/execution_plane/ProjectExecutionFlow.md) + [Worker.md](implementation/agent_platform/execution_plane/Worker.md) + [raid.md](implementation/agent_platform/execution_plane/raid.md) + [status_report_generator.md](implementation/agent_platform/execution_plane/status_report_generator.md) + [flows/module.md](implementation/agent_platform/execution_plane/flows/module.md) | Phase 3: `ProjectExecutionFlow`, QA gate; Phase 6: worker + lease recovery; Phase 7: project-management workflows (G0-G5) |
-| `agent_platform.telemetry` | [module.md](implementation/agent_platform/telemetry/module.md) | Phase 3: event JSONL projection, run summary generation |
+| `agent_platform.telemetry` | [module.md](implementation/agent_platform/telemetry/module.md) | Phase 3: event JSONL projection, run summary generation; Phase 8: metrics registry (M8.1) |
+| `agent_platform.evaluation` | [module.md](implementation/agent_platform/evaluation/module.md) | Phase 8: regression evaluation runner + datasets (M8.2) |
+| `agent_platform.security` | [module.md](implementation/agent_platform/security/module.md) | Phase 8: prompt-injection detector (M8.3) |
 | `agent_platform.api` | [module.md](implementation/agent_platform/api/module.md) | Phase 6: FastAPI control plane + SSE/RBAC |
 | `agent_platform.repositories.postgres` | [module.md](implementation/agent_platform/repositories/postgres/module.md) | Phase 6: PostgreSQL RunStateStore/EventLedger |
 

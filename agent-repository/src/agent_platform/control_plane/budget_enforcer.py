@@ -22,6 +22,7 @@ from agent_platform.application.ports.clock_and_ids import Clock, IdGenerator
 from agent_platform.application.ports.event_ledger import EventLedger
 from agent_platform.domain.events import Actor, RunEvent
 from agent_platform.domain.run import CostState
+from agent_platform.telemetry.metrics import MetricsRegistry
 
 
 class BudgetLimitExceededError(Exception):
@@ -38,6 +39,7 @@ class BudgetEnforcer:
     event_ledger: EventLedger | None = None
     clock: Clock | None = None
     id_generator: IdGenerator | None = None
+    metrics: MetricsRegistry | None = None
 
     def enforce(
         self,
@@ -107,4 +109,6 @@ class BudgetEnforcer:
                     payload={"limit_name": limit_name},
                 )
             )
+        if self.metrics is not None:
+            self.metrics.inc("budget_exhausted_total", labels={"limit": limit_name})
         raise BudgetLimitExceededError(limit_name, message)

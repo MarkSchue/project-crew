@@ -1,0 +1,14 @@
+{
+  "rehearsal": {
+    "archive": "platform-state-20260825T065651Z.tar.gz",
+    "backup_seconds": 0.0034,
+    "bytes_backed_up": 28977,
+    "checksum_failures": [],
+    "data_loss_window_seconds": 0.0065,
+    "files_backed_up": 2,
+    "ok": true,
+    "restore_seconds": 0.0019,
+    "source": "/tmp/dr-source",
+    "verify_seconds": 0.0005
+  }
+}

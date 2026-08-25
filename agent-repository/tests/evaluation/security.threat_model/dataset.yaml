@@ -1,0 +1,18 @@
+schema_version: "evaluation-dataset/1.0"
+capability_id: "security.threat_model"
+model_version: "fake-model/0.1"
+prompt_version: "eval-prompt/0.1"
+baseline_pass_rate: 1.0
+minimum_pass_rate: 0.8
+cases:
+  - name: models_external_boundary_system
+    input:
+      system_has_external_boundary: true
+    golden_output:
+      result:
+        spoofing_considered: true
+      behaviors: ["identifies_trust_boundaries", "documents_data_flows", "ranks_threats"]
+    expected_properties:
+      result.spoofing_considered: true
+    required_behaviors: ["identifies_trust_boundaries", "documents_data_flows"]
+    prohibited_behaviors: ["omits_boundary_analysis"]

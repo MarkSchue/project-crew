@@ -1,0 +1,18 @@
+schema_version: "evaluation-dataset/1.0"
+capability_id: "architecture.solution_documentation"
+model_version: "fake-model/0.1"
+prompt_version: "eval-prompt/0.1"
+baseline_pass_rate: 1.0
+minimum_pass_rate: 0.8
+cases:
+  - name: documents_components_and_interfaces
+    input:
+      component_count: 4
+    golden_output:
+      result:
+        complete: true
+      behaviors: ["documents_components", "documents_interfaces", "documents_deployment"]
+    expected_properties:
+      result.complete: true
+    required_behaviors: ["documents_components", "documents_interfaces"]
+    prohibited_behaviors: ["documentation_incomplete"]

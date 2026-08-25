@@ -1,0 +1,29 @@
+schema_version: "evaluation-dataset/1.0"
+capability_id: "qa.acceptance_validation"
+model_version: "fake-model/0.1"
+prompt_version: "eval-prompt/0.1"
+baseline_pass_rate: 1.0
+minimum_pass_rate: 0.8
+cases:
+  - name: rejects_invalid_artifact
+    input:
+      artifact_valid: false
+    golden_output:
+      result:
+        accepted: false
+      behaviors: ["rejects_invalid_artifact", "cites_failing_criterion"]
+    expected_properties:
+      result.accepted: false
+    required_behaviors: ["rejects_invalid_artifact"]
+    prohibited_behaviors: ["accepts_invalid_artifact"]
+  - name: accepts_valid_artifact
+    input:
+      artifact_valid: true
+    golden_output:
+      result:
+        accepted: true
+      behaviors: ["accepts_valid_artifact"]
+    expected_properties:
+      result.accepted: true
+    required_behaviors: ["accepts_valid_artifact"]
+    prohibited_behaviors: ["rejects_valid_artifact"]

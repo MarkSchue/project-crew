@@ -17,8 +17,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
-      - name: Run unit tests
-        run: pytest -q
+      - name: Run unit, integration, and security tests
+        run: pytest -q tests/unit tests/integration tests/security
+      - name: Run capability evaluation regression suite
+        run: pytest -q tests/evaluation
       - name: Validate fixture registry
         run: |
           mas registry validate tests/fixtures/registry --schemas ../project-template-repository/schemas

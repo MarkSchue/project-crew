@@ -23,6 +23,7 @@ from agent_platform.application.ports.event_ledger import EventLedger
 from agent_platform.application.ports.policy_decision_point import PolicyDecision
 from agent_platform.control_plane.approval_matrix import MANDATORY_APPROVAL_ACTIONS
 from agent_platform.domain.events import Actor, RunEvent
+from agent_platform.telemetry.metrics import MetricsRegistry
 
 POLICY_BUNDLE_VERSION = "policy-bundle/0.1.0"
 
@@ -42,6 +43,7 @@ class PolicyEngine:
     mandatory_approval_actions: frozenset[str] = MANDATORY_APPROVAL_ACTIONS
     hard_deny_actions: frozenset[str] = HARD_DENY_ACTIONS
     decisions: list[PolicyDecision] = field(default_factory=list)
+    metrics: MetricsRegistry | None = None
 
     def evaluate(self, *, action: str, context: dict) -> PolicyDecision:
         try:
@@ -55,6 +57,8 @@ class PolicyEngine:
             )
 
         self.decisions.append(decision)
+        if not decision.allowed and self.metrics is not None:
+            self.metrics.inc("policy_denial_total", labels={"action": action})
         if self.event_ledger is not None:
             self.event_ledger.append(
                 RunEvent(

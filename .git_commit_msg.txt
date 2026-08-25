@@ -1,0 +1,23 @@
+Phase 8: observability, evaluation, and production hardening (M8.1-M8.5)
+
+M8.1 metrics:
+- telemetry/metrics.py: MetricsRegistry (counter/gauge/histogram), METRIC_FAMILIES for the six masterplan 16.4 families, Prometheus + JSON rendering
+- instrumentation wired into ProjectExecutionFlow, PolicyEngine, BudgetEnforcer
+- ops/dashboards/platform.json (one panel per family) and ops/alerts/platform_alerts.yml (budget, dead-letter, policy-denial, approval SLA)
+
+M8.2 evaluation:
+- agent_platform/evaluation (models, loader, deterministic runner)
+- tests/evaluation/<capability>/dataset.yaml for all 10 claimed capabilities + test_evaluation_suite.py (CI gate)
+
+M8.3 failure injection:
+- RetryingToolExecutor (transient retry + exponential backoff), tools/git_tools/merge.py (merge-conflict detection), security/prompt_injection.py (injection corpus)
+- tests: tool retry, git merge, prompt-injection corpus, integration failure-injection
+
+M8.4 operations:
+- docs/operations: backup_restore.md, retention_policy.md, incident_runbook.md
+- ops/rehearsal/dr_rehearsal.py + measured result.json
+
+M8.5 performance:
+- ops/profiling/bench.py + measured result.json, docs/operations/performance_report.md with owned deferral of top bottleneck
+
+CI: split test steps and add evaluation regression suite step. Full suite: 197 passed, 2 skipped.

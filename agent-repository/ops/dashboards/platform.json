@@ -1,0 +1,76 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "CrewAI project delivery platform",
+  "uid": "project-crew-platform",
+  "version": 1,
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Reliability: completion and dead-letter rate",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum by (status) (rate(run_completion_total[5m]))", "legendFormat": "{{status}}" },
+        { "expr": "sum(rate(run_dead_letter_total[5m]))", "legendFormat": "dead_letter" }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Quality: acceptance and defect escape rate",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum(rate(acceptance_total[5m]))", "legendFormat": "accepted" },
+        { "expr": "sum(rate(defect_escape_total[5m]))", "legendFormat": "escaped" },
+        { "expr": "sum(rate(grounded_claim_total[5m]))", "legendFormat": "grounded claims" }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Operations: run duration and queue latency",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.5, rate(run_duration_seconds_bucket[5m]))", "legendFormat": "run p50" },
+        { "expr": "histogram_quantile(0.5, rate(queue_latency_seconds_bucket[5m]))", "legendFormat": "queue p50" },
+        { "expr": "rate(availability_total[5m])", "legendFormat": "availability probes" }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Economics: cost per accepted SPOC and budget exhaustion",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "cost_per_accepted_spoc_usd", "legendFormat": "cost/accepted SPOC" },
+        { "expr": "rework_cost_usd", "legendFormat": "rework cost" },
+        { "expr": "increase(budget_exhausted_total[5m])", "legendFormat": "budget exhausted" }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Governance: approval lead time and policy denials",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.9, rate(approval_lead_time_seconds_bucket[5m]))", "legendFormat": "approval lead p90" },
+        { "expr": "sum by (action) (rate(policy_denial_total[5m]))", "legendFormat": "{{action}}" },
+        { "expr": "unowned_artifact_total", "legendFormat": "unowned artifacts" }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Project value: milestone predictability and blocked-work age",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "milestone_predictability_ratio", "legendFormat": "predictability" },
+        { "expr": "blocked_work_age_seconds", "legendFormat": "blocked-work age" },
+        { "expr": "rate(risk_closure_total[5m])", "legendFormat": "risks closed" }
+      ]
+    }
+  ]
+}

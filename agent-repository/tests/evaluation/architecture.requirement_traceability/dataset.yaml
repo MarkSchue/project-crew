@@ -1,0 +1,18 @@
+schema_version: "evaluation-dataset/1.0"
+capability_id: "architecture.requirement_traceability"
+model_version: "fake-model/0.1"
+prompt_version: "eval-prompt/0.1"
+baseline_pass_rate: 1.0
+minimum_pass_rate: 0.8
+cases:
+  - name: traces_every_requirement
+    input:
+      requirement_count: 3
+    golden_output:
+      result:
+        untraced_count: 0
+      behaviors: ["links_requirement_to_decision", "covers_every_requirement"]
+    expected_properties:
+      result.untraced_count: 0
+    required_behaviors: ["links_requirement_to_decision", "covers_every_requirement"]
+    prohibited_behaviors: ["leaves_requirement_untraced"]

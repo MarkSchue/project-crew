@@ -1,0 +1,18 @@
+schema_version: "evaluation-dataset/1.0"
+capability_id: "documentation.api_reference"
+model_version: "fake-model/0.1"
+prompt_version: "eval-prompt/0.1"
+baseline_pass_rate: 1.0
+minimum_pass_rate: 0.8
+cases:
+  - name: documents_every_endpoint
+    input:
+      endpoint_count: 5
+    golden_output:
+      result:
+        all_endpoints_documented: true
+      behaviors: ["documents_endpoints", "documents_error_codes", "documents_auth"]
+    expected_properties:
+      result.all_endpoints_documented: true
+    required_behaviors: ["documents_endpoints", "documents_error_codes"]
+    prohibited_behaviors: ["undocumented_endpoint"]

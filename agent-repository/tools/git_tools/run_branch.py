@@ -62,6 +62,18 @@ class GitRunner:
             raise RuntimeError(f"git {' '.join(args)} failed: {result.stderr.strip()}")
         return result.stdout.strip()
 
+    def run_raw(self, *args: str) -> tuple[int, str, str]:
+        """Run a git command and return ``(returncode, stdout, stderr)``
+        without raising, for callers that need to inspect the output (e.g.
+        merge-conflict detection)."""
+        result = subprocess.run(
+            [self.git_binary, "-C", str(self.repo_dir), *args],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        return result.returncode, result.stdout, result.stderr
+
     def create_branch(self, branch: str) -> str:
         assert_safe_branch(branch)
         return self._run("checkout", "-b", branch)

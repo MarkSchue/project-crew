@@ -19,8 +19,9 @@ last_verified_commit: "<generated-by-ci>"
 
 ## Purpose
 
-Portable run evidence: the append-only `events.jsonl` projector and the
-human-readable `summary.md` generator (masterplan section 16, ADR-013).
+Portable run evidence: the append-only `events.jsonl` projector, the
+human-readable `summary.md` generator (masterplan section 16, ADR-013),
+and the in-process metrics registry (masterplan section 16.4, M8.1).
 
 ## Responsibilities / public contract
 
@@ -31,12 +32,16 @@ human-readable `summary.md` generator (masterplan section 16, ADR-013).
   — produces an OKF `run_summary` with `generated_by` back to the SPOC
   and `evidenced_by` forward to `events.jsonl`, listing every test result
   (masterplan section 9.5, plan M3.9).
+- `metrics.py`: `MetricsRegistry`, `METRIC_FAMILIES`,
+  `standard_platform_metrics()` — the six masterplan section 16.4 metric
+  families, Prometheus + JSON rendering, and instrumentation helpers used
+  by the control/execution planes (M8.1).
 
 ## Explicit non-responsibilities
 
 - Not an OpenTelemetry exporter — masterplan section 26 lists
-  OpenTelemetry for traces/metrics; that is a Phase 8 concern and is not
-  yet wired here.
+  OpenTelemetry for traces/metrics; the registry is the framework-neutral
+  surface an OTel adapter can later push (masterplan section 28.3).
 - Not the authoritative event store — the `EventLedger` port is
   authoritative (ADR-013); this module is the projection.
 
