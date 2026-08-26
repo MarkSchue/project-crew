@@ -1,5 +1,0 @@
-Revise PM handbook: add concrete kickoff walkthrough
-
-- New section 3 "Kick off a project and run your first task (step by step)": create project, author charter/epic/story/test-case by hand, validate, rebuild projections, start the server, compile a SPOC and start a run via the API, watch it
-- Renumbered sections 3-13 to 4-14 and fixed cross-references
-- Verified the example SPOC compiles end-to-end (architecture_writer, approval_required=False)
