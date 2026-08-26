@@ -5,8 +5,13 @@ This is the navigation root for `agent-repository`'s documentation, per
 strategy). `mas docs validate` and `mas docs coverage` (section 17.8)
 check the code-to-document mapping and report coverage.
 
+> **New here?** Start with the [Project Manager Handbook](pm_handbook.md).
+
 ## Categories
 
+- [Project Manager Handbook](pm_handbook.md) — quick start, creating
+  projects, adding agents, OKF layout, stage gates, SPOCs, QA, and the
+  web UI.
 - [`architecture/`](architecture/) — context, container, component, and
   trust-boundary views.
 - [`decisions/`](decisions/) — ADR-001 through ADR-022 (masterplan section

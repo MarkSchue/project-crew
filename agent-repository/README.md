@@ -35,6 +35,13 @@ pip install -e ".[dev]"
 pytest
 ```
 
+## Using the platform
+
+If you are a **project manager** (not a platform developer), start with
+[`docs/pm_handbook.md`](docs/pm_handbook.md) — quick start, creating a
+project, adding agents, the OKF layout, stage gates, SPOCs, QA, and the
+web UI.
+
 ## CLI quick start
 
 ```bash
