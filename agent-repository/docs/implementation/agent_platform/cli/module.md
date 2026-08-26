@@ -40,7 +40,9 @@ filesystem permissions).
 
 ## Explicit non-responsibilities
 
-- Does not implement `mas docs *` (plan section 17.8) — not yet built.
+- Does not implement `mas docs scaffold/build/serve/link-check/changed`
+  (plan section 17.8) — only `mas docs validate` and `mas docs coverage`
+  are implemented so far.
 
 ## Public contract (commands)
 
@@ -51,6 +53,8 @@ filesystem permissions).
 | `mas project migrate <dir>` | apply pending project migrations | 0 always |
 | `mas index rebuild <dir>` | regenerate `index.md` projections | 0 always (unless path missing: 2) |
 | `mas graph rebuild <dir> [--style-config f]` | regenerate `public/knowledge/graph_index.json` | 1 on dangling relation or unknown type |
+| `mas docs validate [--src dir] [--docs dir]` | validate code-to-document mapping via AST | 1 on any error |
+| `mas docs coverage [--src dir] [--docs dir] [--min r]` | report documentation coverage | 1 if below `--min` |
 | `mas registry validate <registry-dir> [--schemas dir]` | load all six registries | 0 clean, 1 on `RegistryError` |
 | `mas agent scaffold <agent-id> [--registry dir]` | write a draft agent scaffold | 0 always |
 | `mas chat [--question q] [--graph f] [--project-root dir]` | one-shot or interactive PM-agent query (read-only) | 0 always |

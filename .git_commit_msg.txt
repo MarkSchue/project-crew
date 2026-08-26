@@ -1,0 +1,9 @@
+mas docs tooling: validate + coverage (plan section 17.8)
+
+- agent_platform/docs/analyzer.py: AST-based code-unit discovery, code-to-document and document-to-code mapping, front-matter validation (code-doc/1.0, stable doc_id uniqueness), orphaned-document detection, and coverage ratio
+- mas docs validate: 0 errors on the committed docs (29 code docs, 253 required code units)
+- mas docs coverage: documented / required ratio + undocumented unit list
+- tests: tests/unit/test_docs_analyzer.py (7 tests), including a regression guard that the committed docs stay valid
+- docs: agent_platform/docs module doc; cli + index updated
+
+Full suite: 232 passed, 2 skipped.

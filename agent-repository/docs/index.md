@@ -2,8 +2,8 @@
 
 This is the navigation root for `agent-repository`'s documentation, per
 `plan/implementation_plan_enhanced_v1.1.md` section 17 (documentation-as-code
-strategy). This file is currently maintained by hand; a `mas docs` generator
-(plan section 17.8) will later regenerate it and add a coverage report.
+strategy). `mas docs validate` and `mas docs coverage` (section 17.8)
+check the code-to-document mapping and report coverage.
 
 ## Categories
 
@@ -50,6 +50,7 @@ strategy). This file is currently maintained by hand; a `mas docs` generator
 | `agent_platform.evaluation` | [module.md](implementation/agent_platform/evaluation/module.md) | Phase 8: regression evaluation runner + datasets (M8.2) |
 | `agent_platform.security` | [module.md](implementation/agent_platform/security/module.md) | Phase 8: prompt-injection detector (M8.3) |
 | `agent_platform.knowledge_graph` | [module.md](implementation/agent_platform/knowledge_graph/module.md) | Phase 9: graph generator + style config (M9.1) |
+| `agent_platform.docs` | [module.md](implementation/agent_platform/docs/module.md) | plan 17.8: documentation-as-code analyzer |
 | `agent_platform.api` | [module.md](implementation/agent_platform/api/module.md) | Phase 6: FastAPI control plane + SSE/RBAC; Phase 9: graph + chat endpoints (M9.2) |
 | `agent_platform.repositories.postgres` | [module.md](implementation/agent_platform/repositories/postgres/module.md) | Phase 6: PostgreSQL RunStateStore/EventLedger |
 

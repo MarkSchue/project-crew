@@ -25,6 +25,7 @@ from agent_platform.adapters.clock_and_ids import FixedClock, SequentialIdGenera
 from agent_platform.adapters.persistence import InMemoryEventLedger
 from agent_platform.adapters.policy import LocalDevPolicyDecisionPoint
 from agent_platform.cli.agent_scaffold import scaffold_agent
+from agent_platform.docs.analyzer import analyze
 from agent_platform.execution_plane.pm_query_flow import PmQueryFlow
 from agent_platform.knowledge_graph.graph_generator import (
     GraphGenerationError,
@@ -47,20 +48,25 @@ app = typer.Typer(add_completion=False, help="Agent platform control-plane CLI."
 project_app = typer.Typer(add_completion=False, help="Project-level commands.")
 index_app = typer.Typer(add_completion=False, help="Generated-index commands.")
 graph_app = typer.Typer(add_completion=False, help="Knowledge-graph commands.")
+docs_app = typer.Typer(add_completion=False, help="Documentation-as-code commands.")
 registry_app = typer.Typer(add_completion=False, help="Registry commands.")
 agent_app = typer.Typer(add_completion=False, help="Agent commands.")
 app.add_typer(project_app, name="project")
 app.add_typer(index_app, name="index")
 app.add_typer(graph_app, name="graph")
+app.add_typer(docs_app, name="docs")
 app.add_typer(registry_app, name="registry")
 app.add_typer(agent_app, name="agent")
 
 console = Console()
 
 _WORKSPACE_ROOT = Path(__file__).resolve().parents[4]
+_AGENT_REPO = Path(__file__).resolve().parents[3]
 _DEFAULT_SCHEMA_DIR = _WORKSPACE_ROOT / "project-template-repository" / "schemas"
 _DEFAULT_TEMPLATE_DIR = _WORKSPACE_ROOT / "project-template-repository" / "project_skeleton"
 _DEFAULT_STYLE_CONFIG = Path(__file__).resolve().parents[1] / "knowledge_graph" / "style_config.yaml"
+_DEFAULT_SRC_DIR = _AGENT_REPO / "src" / "agent_platform"
+_DEFAULT_DOCS_DIR = _AGENT_REPO / "docs"
 
 
 @project_app.command("validate")
@@ -194,6 +200,55 @@ def graph_rebuild(
         raise typer.Exit(code=1) from exc
 
     console.print(f"[green]wrote[/green] {written}")
+
+
+@docs_app.command("validate")
+def docs_validate(
+    src: Path = typer.Option(_DEFAULT_SRC_DIR, "--src", help="Directory of Python source to analyze."),
+    docs: Path = typer.Option(_DEFAULT_DOCS_DIR, "--docs", help="Documentation root."),
+) -> None:
+    """Validate the documentation-as-code mapping via Python AST analysis
+    (plan section 17.8): front-matter completeness, stable doc_id
+    uniqueness, code_ref resolution, and orphaned documents."""
+    if not src.exists() or not docs.exists():
+        console.print("[red]Source or docs directory does not exist.[/red]")
+        raise typer.Exit(code=2)
+
+    report = analyze(src, docs)
+    for error in report.errors:
+        console.print(f"[red]error[/red] {error}")
+    for warning in report.warnings:
+        console.print(f"[yellow]warning[/yellow] {warning}")
+
+    if report.errors:
+        raise typer.Exit(code=1)
+
+    console.print(
+        f"[green]OK[/green] {len(report.docs)} code docs, "
+        f"{len(report.required_units)} required code units, "
+        f"{len(report.undocumented)} undocumented."
+    )
+
+
+@docs_app.command("coverage")
+def docs_coverage(
+    src: Path = typer.Option(_DEFAULT_SRC_DIR, "--src", help="Directory of Python source to analyze."),
+    docs: Path = typer.Option(_DEFAULT_DOCS_DIR, "--docs", help="Documentation root."),
+    min: float = typer.Option(0.0, "--min", help="Minimum coverage ratio (0-1); exit 1 below it."),
+) -> None:
+    """Report documentation coverage (documented / required code units)."""
+    report = analyze(src, docs)
+    ratio = report.coverage_ratio
+    console.print(
+        f"[bold]documentation coverage:[/bold] {report.documented_count}/"
+        f"{len(report.required_units)} = {ratio:.1%}"
+    )
+    if report.undocumented:
+        console.print("[yellow]undocumented required code units:[/yellow]")
+        for ref in report.undocumented:
+            console.print(f"  - {ref}")
+    if ratio < min:
+        raise typer.Exit(code=1)
 
 
 @registry_app.command("validate")
