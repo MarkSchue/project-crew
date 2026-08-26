@@ -58,7 +58,180 @@ AGENT_PLATFORM_PROJECT_DIR=/path/to/active-project-repo uvicorn agent_platform.a
 
 ---
 
-## 3. Creating a new project
+## 3. Kick off a project and run your first task (step by step)
+
+If you remember one thing, remember this loop: **create → author →
+validate → rebuild → start the server → compile a SPOC → run it → watch
+it**. Here it is concretely, end to end.
+
+### 3.1 Create the project
+
+```bash
+mas project init my-project        # run from the agent-repository venv
+cd my-project
+```
+
+Then edit `my-project/project.yaml` and set `project_id`, `name`, and the
+`goal` block (§4 shows the full file).
+
+### 3.2 Author the minimum OKF content
+
+OKF is plain Markdown — you can type these by hand. Create four files.
+
+**`public/charter/project_charter.md`** (gate G0):
+
+```markdown
+---
+schema_version: okf/1.1
+id: CHARTER-PRJ-001
+type: concept
+title: "Project charter: Demo"
+status: approved
+classification: internal
+owner: pm
+created_at: 2026-08-26T09:00:00Z
+updated_at: 2026-08-26T09:00:00Z
+tags: []
+source_refs: []
+relations: []
+provenance: {created_by_type: human, created_by_id: pm, run_id: null}
+---
+# Project charter: Demo
+
+Objective: ship the demo.
+```
+
+**`public/epics/EPIC-001.md`**:
+
+```markdown
+---
+schema_version: okf/1.1
+id: EPIC-001
+type: epic
+title: "First epic"
+status: active
+classification: internal
+owner: pm
+created_at: 2026-08-26T09:00:00Z
+updated_at: 2026-08-26T09:00:00Z
+tags: []
+source_refs: []
+relations: []
+provenance: {created_by_type: human, created_by_id: pm, run_id: null}
+---
+# EPIC-001
+```
+
+**`public/user_stories/US-001.md`** (note `part_of` + `tested_by`):
+
+```markdown
+---
+schema_version: okf/1.1
+id: US-001
+type: user_story
+title: "First user story"
+status: ready
+classification: internal
+owner: pm
+created_at: 2026-08-26T09:00:00Z
+updated_at: 2026-08-26T09:00:00Z
+tags: []
+source_refs: []
+relations:
+  - type: part_of
+    target: EPIC-001
+  - type: tested_by
+    target: TC-001
+provenance: {created_by_type: human, created_by_id: pm, run_id: null}
+---
+As a stakeholder, I want the first deliverable.
+```
+
+**`public/test_cases/TC-001.md`** (note `validates`):
+
+```markdown
+---
+schema_version: okf/1.1
+id: TC-001
+type: test_case
+title: "Acceptance test for US-001"
+status: active
+classification: internal
+owner: pm
+created_at: 2026-08-26T09:00:00Z
+updated_at: 2026-08-26T09:00:00Z
+tags: []
+source_refs: []
+relations:
+  - type: validates
+    target: US-001
+provenance: {created_by_type: human, created_by_id: pm, run_id: null}
+---
+Verifies US-001.
+```
+
+### 3.3 Validate and rebuild the projections
+
+```bash
+mas project validate public          # must print "No issues found."
+mas index rebuild .
+mas graph rebuild .
+```
+
+### 3.4 Start the control plane against this project
+
+```bash
+AGENT_PLATFORM_PROJECT_DIR=. uvicorn agent_platform.api.main:app
+```
+
+Open http://127.0.0.1:8000/ and sign in with the bearer token
+`dev-token-admin`. Your epic, story, and test now appear on the
+**Overview** and **Knowledge graph** screens.
+
+### 3.5 Start a task (compile a SPOC and run it)
+
+A task is a **SPOC** (§8). Today you start one through the REST API —
+the UI's SPOC editor validates, but the compile/run actions are still
+API-only. Three calls:
+
+```bash
+TOKEN=dev-token-admin
+BASE=http://127.0.0.1:8000
+
+# 1) Compile the SPOC into an immutable manifest
+MANIFEST=$(curl -s -X POST $BASE/api/v1/spocs/compile \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"project_id":"PRJ-001","spoc":{
+    "schema_version":"spoc/1.1","id":"SPOC-DEMO-001","type":"spoc",
+    "title":"Demo SPOC","status":"ready","project_id":"PRJ-001",
+    "owner":"pm","created_at":"2026-08-26T09:00:00Z",
+    "classification":"internal","workflow":"requirement_to_delivery@1.2.0",
+    "supplier":{"provided_by":"pm","inputs":[{"ref":"public/user_stories/US-001.md","required":true}]},
+    "procedure":{"objective":"demo","explicit_capabilities":["architecture.solution_documentation"]},
+    "output":{"artifacts":[{"target":"public/deliverables/DEL-DEMO.md","schema":"okf/1.1","required":true}],
+              "acceptance_criteria":[{"id":"AC-1","statement":"accepted","validator":"traceability_validator"}]},
+    "consumer":{"next_role":"qa_agent","on_success":"request_human_approval","on_reject":"return_to_originating_agent"},
+    "retry_policy":{"max_attempts":2,"retry_on":["schema_validation_error"]}
+  }}' | python3 -c 'import sys,json; print(json.dumps(json.load(sys.stdin)["manifest"]))')
+
+# 2) Start a run from that manifest
+curl -s -X POST $BASE/api/v1/runs \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d "{\"manifest\":$MANIFEST,\"originating_agent_id\":\"architecture_writer\",\"qa_agent_id\":\"qa_evaluator\",\"test_cases\":[]}"
+
+# 3) Watch the run
+curl -s $BASE/api/v1/runs -H "Authorization: Bearer $TOKEN"
+```
+
+The run appears in the **Runs** screen; its evidence lands under
+`logs/runs/<run-id>/` (and in the knowledge graph after `mas graph
+rebuild .`). If the SPOC needs approval (e.g. `classification:
+confidential` or prohibited actions), it waits in the **Approvals** screen
+instead of finishing.
+
+---
+
+## 4. Creating a new project
 
 ```bash
 # Create a project from the pinned template skeleton
@@ -105,7 +278,7 @@ mas project validate ../my-project/public --mode fast   # schema only
 
 ---
 
-## 4. Where the OKF knowledge lives
+## 5. Where the OKF knowledge lives
 
 All project knowledge lives under `public/` in the active project repo.
 Each directory holds a different OKF `type`:
@@ -178,7 +351,7 @@ honest.
 
 ---
 
-## 5. Project lifecycle (stage gates)
+## 6. Project lifecycle (stage gates)
 
 The platform walks a project through gates (masterplan §8.2):
 
@@ -197,10 +370,10 @@ risk escalation, requirement-to-delivery, closure) live in
 
 ---
 
-## 6. Setting up a new agent
+## 7. Setting up a new agent
 
 Agents live in the registry: `agent-repository/registry/agents/<agent_id>/`
-(see §8 for where the registry actually sits today).
+(see §9 for where the registry actually sits today).
 
 ```bash
 # 1. Scaffold a schema-valid DRAFT agent
@@ -219,7 +392,7 @@ The scaffold is intentionally **incomplete** (`status: draft`, `role` and
 
 1. `role` and `goal` (remove the `TODO` markers).
 2. `capabilities` — list capability ids from the capability catalog
-   (§8) with a `proficiency` and `evidence_refs`.
+   (§9) with a `proficiency` and `evidence_refs`.
 3. `allowed_tools` — only the tools this agent may use.
 4. `allowed_classifications` — e.g. `[public, internal]`.
 5. `delegation` — whether it may delegate, and to which capability prefixes.
@@ -240,7 +413,7 @@ mas registry validate registry --schemas ../project-template-repository/schemas
 
 ---
 
-## 7. Authoring and running work (SPOCs)
+## 8. Authoring and running work (SPOCs)
 
 A **SPOC** (Supplier-Procedure-Output-Consumer contract) is the smallest
 governed unit of execution. It declares inputs, the procedure
@@ -287,7 +460,7 @@ with `rejected`/`dead_letter`/`cancelled` as exits.
 
 ---
 
-## 8. The registry (agents, capabilities, tools, workflows)
+## 9. The registry (agents, capabilities, tools, workflows)
 
 | Path | Contents |
 |---|---|
@@ -305,7 +478,7 @@ with `rejected`/`dead_letter`/`cancelled` as exits.
 
 ---
 
-## 9. QA, acceptance, and evidence
+## 10. QA, acceptance, and evidence
 
 - A **user story** must declare at least one `tested_by` relation
   (`mas project validate` flags untested stories).
@@ -322,7 +495,7 @@ The QA rework loop sends a rejected SPOC back to the originating agent
 
 ---
 
-## 10. Knowledge graph, documents, and the PM chat
+## 11. Knowledge graph, documents, and the PM chat
 
 Regenerate the graph projection (and run it in CI):
 
@@ -343,7 +516,7 @@ In the web UI:
 
 ---
 
-## 11. Approvals
+## 12. Approvals
 
 Consequential actions require human approval (they cannot be auto-approved
 by agents). Mandatory-approval actions include scope/budget/baseline
@@ -355,7 +528,7 @@ approved).
 
 ---
 
-## 12. CLI reference
+## 13. CLI reference
 
 | Command | Purpose |
 |---|---|
@@ -371,11 +544,11 @@ approved).
 
 ---
 
-## 13. Troubleshooting
+## 14. Troubleshooting
 
 - **`mas` not found** → activate the venv and `pip install -e ".[dev]"`.
 - **Validation fails on a relation** → the `target` id must exist in the
-  same project and be type-compatible (see §4 table).
+  same project and be type-compatible (see §5 table).
 - **Graph rebuild fails** → a node's `type` has no style entry, or a
   relation is dangling; fix the OKF file.
 - **Agent won't activate** → fill the `TODO` role/goal, add capability
