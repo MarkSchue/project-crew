@@ -1,4 +1,0 @@
-Add Project Manager handbook
-
-- agent-repository/docs/pm_handbook.md: quick start, creating projects, the OKF layout, stage gates, setting up new agents, authoring/running SPOCs, the registry, QA/acceptance, knowledge graph + document viewer, PM chat, approvals, CLI reference, troubleshooting
-- Linked from docs/index.md and the README
