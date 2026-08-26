@@ -22,10 +22,11 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Callable
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import StreamingResponse
+from fastapi.responses import RedirectResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from agent_platform.api.auth import DevAuthProvider, Identity
@@ -38,6 +39,7 @@ from agent_platform.execution_plane.pm_query_flow import PmQueryFlow
 from agent_platform.execution_plane.project_flow import FlowRunOptions, ProjectExecutionFlow
 from agent_platform.registries.agent_registry import AgentRegistry
 from agent_platform.registries.capability_registry import CapabilityRegistry
+from agent_platform.schemas.canonicalize import load_okf_file
 from agent_platform.schemas.okf_linter import SchemaRegistry
 
 
@@ -66,6 +68,10 @@ class ControlPlaneDeps:
     idempotency_store: IdempotencyStore = field(default_factory=IdempotencyStore)
     graph_index: dict | None = None
     pm_query_flow: PmQueryFlow | None = None
+    schema_dir: Path | None = None
+    project_root: Path | None = None
+    web_dir: Path | None = None
+    graph_style: dict | None = None
 
 
 class SpocValidateRequest(BaseModel):
@@ -262,6 +268,21 @@ def create_app(deps: ControlPlaneDeps) -> FastAPI:
 
         return StreamingResponse(gen(), media_type="text/event-stream")
 
+    @app.get("/api/v1/approvals")
+    def list_approvals(request: Request, offset: int = 0, limit: int = 50) -> dict:
+        _identity(request)
+        items = [
+            {
+                "approval_id": a.approval_id,
+                "scope": a.scope,
+                "subject": a.subject,
+                "status": a.status,
+                "requested_at": a.requested_at,
+            }
+            for a in deps.approval_gateway.list_approvals()
+        ]
+        return _paginate(items, offset, limit)
+
     @app.get("/api/v1/approvals/{approval_id}")
     def get_approval(approval_id: str, request: Request) -> dict:
         _identity(request)
@@ -310,6 +331,15 @@ def create_app(deps: ControlPlaneDeps) -> FastAPI:
         _identity(request)
         return _require_graph()
 
+    @app.get("/api/v1/graph/style")
+    def get_graph_style(request: Request) -> dict:
+        """Serve the type -> color/icon style table for the graph view and
+        its legend."""
+        _identity(request)
+        if deps.graph_style is None:
+            raise HTTPException(status_code=404, detail="graph style not available")
+        return {"types": deps.graph_style}
+
     @app.get("/api/v1/graph/nodes/{node_id}")
     def get_graph_node(node_id: str, request: Request) -> dict:
         _identity(request)
@@ -334,6 +364,47 @@ def create_app(deps: ControlPlaneDeps) -> FastAPI:
             elif edge.get("target") == node_id:
                 neighbors[edge["source"]] = nodes_by_id.get(edge["source"], {})
         return {"node_id": node_id, "neighbors": list(neighbors.values())}
+
+    @app.get("/api/v1/schemas/{filename}")
+    def get_schema(filename: str, request: Request) -> dict:
+        """Serve a JSON Schema file (single source of truth for the SPOC
+        editor's client-side validation)."""
+        _identity(request)
+        if deps.schema_dir is None:
+            raise HTTPException(status_code=503, detail="schemas not configured")
+        if Path(filename).name != filename or not filename.endswith(".schema.json"):
+            raise HTTPException(status_code=404, detail="unknown schema")
+        schema_path = deps.schema_dir / filename
+        if not schema_path.exists():
+            raise HTTPException(status_code=404, detail="unknown schema")
+        return json.loads(schema_path.read_text(encoding="utf-8"))
+
+    @app.get("/api/v1/artifacts/{node_id}")
+    def get_artifact(node_id: str, request: Request) -> dict:
+        """Serve an OKF artifact (front matter + body) by stable node id for
+        the document viewer."""
+        _identity(request)
+        graph = _require_graph()
+        node = next((n for n in graph.get("nodes", []) if n.get("id") == node_id), None)
+        if node is None:
+            raise HTTPException(status_code=404, detail=f"unknown node '{node_id}'")
+        if deps.project_root is None or not node.get("path"):
+            raise HTTPException(status_code=503, detail="artifact store not configured")
+
+        root = deps.project_root.resolve()
+        target = (root / node["path"]).resolve()
+        if root not in target.parents:
+            raise HTTPException(status_code=403, detail="artifact path escapes project root")
+        if not target.exists():
+            raise HTTPException(status_code=404, detail="artifact file missing")
+
+        document = load_okf_file(target)
+        return {
+            "id": node_id,
+            "path": node["path"],
+            "front_matter": document.front_matter,
+            "body": document.body,
+        }
 
     # -- Project Manager chat (M9.2 surface, M9.3 flow) -------------------------
 
@@ -391,6 +462,15 @@ def create_app(deps: ControlPlaneDeps) -> FastAPI:
     def _require_if_match(request: Request, state: ProjectRunState) -> None:
         if request.headers.get("if-match") != _etag(state):
             raise HTTPException(status_code=409, detail="version conflict (If-Match mismatch)")
+
+    if deps.web_dir is not None:
+        from fastapi.staticfiles import StaticFiles
+
+        app.mount("/ui", StaticFiles(directory=str(deps.web_dir), html=True), name="ui")
+
+        @app.get("/", include_in_schema=False)
+        def index() -> RedirectResponse:
+            return RedirectResponse(url="/ui/")
 
     return app
 

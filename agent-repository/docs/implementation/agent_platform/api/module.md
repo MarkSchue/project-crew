@@ -33,8 +33,10 @@ bearer identity and enforces project scope.
 ## Responsibilities / public contract
 
 - `app.py`: `create_app(deps) -> FastAPI` — routes for SPOC validate/
-  compile, run start/list/get/cancel/resume/events, approvals, and
-  registry listings, with idempotency keys, optimistic concurrency
+  compile, run start/list/get/cancel/resume/events, approvals (list/get/
+  resolve), registry listings, the knowledge-graph endpoints, the Project
+  Manager chat endpoints, schema serving, artifact serving, and the
+  static web UI mount — with idempotency keys, optimistic concurrency
   (If-Match ETag), pagination, and `X-Correlation-ID` echo.
 - `auth.py`: `DevAuthProvider` + `Identity` + `dev_token`; project-scoped
   RBAC (`can_access_project`), admin bypass.
@@ -48,7 +50,8 @@ The committed OpenAPI spec is `docs/api/openapi.json` (regenerated with
 
 - Does not execute the flow itself — it delegates to
   `ProjectExecutionFlow` via `ControlPlaneDeps.flow`.
-- Does not implement the web UI/graph/chat endpoints (Phase 9/W9).
+- The web UI (M9.4-M9.6) is a static client in `agent-repository/web/`,
+  served by this module but maintained separately (ADR-023).
 - The dev auth provider is a stand-in for OIDC (M6.1 allows this).
 
 ## Invariants

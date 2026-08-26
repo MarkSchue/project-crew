@@ -26,6 +26,7 @@ from agent_platform.control_plane.policy_engine import PolicyEngine
 from agent_platform.control_plane.spoc_compiler import CompileSpocService
 from agent_platform.execution_plane.pm_query_flow import PmQueryFlow
 from agent_platform.execution_plane.project_flow import ProjectExecutionFlow
+from agent_platform.knowledge_graph.graph_generator import load_style_config
 from agent_platform.registries.agent_registry import load_agent_registry
 from agent_platform.registries.capability_registry import load_capability_registry
 from agent_platform.registries.workflow_registry import load_workflow_registry
@@ -95,6 +96,8 @@ def build_app():
         clock=clock,
     )
 
+    graph_style = load_style_config(_WORKSPACE / "agent-repository" / "src" / "agent_platform" / "knowledge_graph" / "style_config.yaml")
+
     deps = ControlPlaneDeps(
         compile_service=compile_service,
         run_state_store=flow.run_state_store,
@@ -107,6 +110,10 @@ def build_app():
         schema_registry=schema_registry,
         graph_index=graph_index,
         pm_query_flow=pm_query_flow,
+        schema_dir=schema_dir,
+        project_root=project_dir,
+        web_dir=_WORKSPACE / "agent-repository" / "web",
+        graph_style=graph_style,
     )
     return create_app(deps)
 

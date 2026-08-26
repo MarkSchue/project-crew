@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Project Crew — control plane</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <nav class="sidebar">
+    <h1>Project Crew</h1>
+    <div id="nav"></div>
+    <div style="margin-top:1rem">
+      <label class="hint" for="token-input">Bearer token</label>
+      <input type="password" id="token-input" placeholder="dev-token-admin" style="width:100%; margin-top:0.25rem">
+      <button id="token-save" class="secondary" style="width:100%; margin-top:0.35rem">Save token</button>
+    </div>
+  </nav>
+  <main class="content">
+    <div id="view"></div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/okf-validator.js"></script>
+  <script src="js/views.js"></script>
+  <script src="js/graph.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

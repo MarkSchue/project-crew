@@ -28,3 +28,6 @@ class InMemoryApprovalGateway:
             raise KeyError(f"unknown approval_id: {approval_id}")
         request.status = "approved" if approved else "rejected"
         request.reason = reason
+
+    def list_approvals(self) -> list[ApprovalRequest]:
+        return list(self._requests.values())

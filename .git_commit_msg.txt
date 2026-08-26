@@ -1,0 +1,14 @@
+Phase 9 frontend track: web UI + graph/document/chat (M9.4-M9.7)
+
+M9.4-M9.6 web UI (ADR-023, dependency-free static client served by the control plane):
+- web/: index.html, css, js (api, okf-validator, views, graph, chat, app router)
+- SPOC editor validates against the backend-served spoc.schema.json (single source of truth)
+- knowledge-graph SVG view with legend, search/filter, and document viewer (deep links by stable OKF id)
+- persistent Project Manager chat panel mounted on every screen, citations link into the document viewer
+- new API endpoints: GET /api/v1/schemas/{file}, GET /api/v1/artifacts/{id}, GET /api/v1/approvals, GET /api/v1/graph/style, static /ui mount
+
+M9.7:
+- tests/integration/test_graph_integrity.py (summary links to SPOC + events, zero dangling relations, requirement coverage/pass consistency)
+- graph generator resolves evidenced_by/generated_by evidence refs (relative path + unique basename)
+
+Tests: test_web_support_api. Full suite: 225 passed, 2 skipped. UI verified end-to-end in the browser.

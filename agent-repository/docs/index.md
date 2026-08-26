@@ -28,6 +28,8 @@ strategy). This file is currently maintained by hand; a `mas docs` generator
 - [`operations/`](operations/backup_restore.md) — backup/restore, retention
   policy, incident runbook, and the performance/cost report (Phase 8,
   M8.4-M8.5).
+- [`web/`](../web/README.md) — the dependency-free static web UI (Phase 9,
+  M9.4-M9.6; ADR-023).
 - [`testing/`](testing/) — test strategy summary.
 - `generated/` — reserved for reproducible projections (none yet).
 - [`glossary.md`](glossary.md) — controlled platform vocabulary.

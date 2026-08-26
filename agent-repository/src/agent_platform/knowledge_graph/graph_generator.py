@@ -104,6 +104,33 @@ def _raw_event_leaf_id(path: Path, root: Path) -> str:
     return f"raw:{path.relative_to(root).as_posix()}"
 
 
+def _resolve_evidence_ref(
+    source_path: Path,
+    target: str,
+    root: Path,
+    raw_event_by_relpath: dict[str, str],
+    raw_event_by_basename: dict[str, list[str]],
+) -> str | None:
+    """Resolve an ``evidenced_by``/``generated_by`` target that is a path
+    (e.g. ``events.jsonl``) to a raw_event leaf-node id.
+
+    Resolution order: relative to the source file's directory first; then,
+    for a bare filename, a unique leaf with that basename."""
+    candidate = (source_path.parent / target).resolve()
+    try:
+        rel = candidate.relative_to(root.resolve()).as_posix()
+    except ValueError:
+        rel = None
+    if rel is not None and rel in raw_event_by_relpath:
+        return raw_event_by_relpath[rel]
+
+    if "/" not in target and "\\" not in target:
+        matches = raw_event_by_basename.get(target, [])
+        if len(matches) == 1:
+            return matches[0]
+    return None
+
+
 def _jsonl_files(root: Path) -> list[Path]:
     return sorted(p for p in Path(root).rglob("*.jsonl") if p.is_file())
 
@@ -144,22 +171,26 @@ def generate_graph_index(root: Path, style_config: dict[str, dict]) -> GraphInde
         index.nodes.append(node)
 
     # 2. Non-OKF leaf nodes (events.jsonl).
-    raw_event_ids: set[str] = set()
+    raw_event_by_relpath: dict[str, str] = {}
+    raw_event_by_basename: dict[str, list[str]] = {}
     for jsonl_path in _jsonl_files(root):
         leaf_id = _raw_event_leaf_id(jsonl_path, root)
-        raw_event_ids.add(leaf_id)
+        rel = jsonl_path.relative_to(root).as_posix()
+        raw_event_by_relpath[rel] = leaf_id
+        raw_event_by_basename.setdefault(jsonl_path.name, []).append(leaf_id)
         nodes_by_id[leaf_id] = GraphNode(
             id=leaf_id,
             type="raw_event",
             status="",
             owner="",
             title=jsonl_path.name,
-            path=str(jsonl_path.relative_to(root).as_posix()),
+            path=rel,
             classification="internal",
         )
         index.nodes.append(nodes_by_id[leaf_id])
 
-    # 3. Edges from relations + source_refs (resolve-by-id only).
+    # 3. Edges from relations + source_refs (resolve-by-id, then resolve
+    #    evidence references relative to the source file's directory).
     for path in iter_okf_files(root):
         try:
             doc = load_okf_file(path)
@@ -177,10 +208,17 @@ def generate_graph_index(root: Path, style_config: dict[str, dict]) -> GraphInde
             target_str = str(target)
             if target_str in nodes_by_id:
                 index.edges.append(GraphEdge(type=rel_type, source=doc.id, target=target_str))
-            else:
-                index.dangling_relations.append(
-                    f"{doc.id}: relation '{rel_type}' -> unknown id '{target_str}'"
+                continue
+            if rel_type in _EVIDENCE_RELATION_TYPES:
+                resolved = _resolve_evidence_ref(
+                    path, target_str, root, raw_event_by_relpath, raw_event_by_basename
                 )
+                if resolved is not None:
+                    index.edges.append(GraphEdge(type=rel_type, source=doc.id, target=resolved))
+                    continue
+            index.dangling_relations.append(
+                f"{doc.id}: relation '{rel_type}' -> unknown id '{target_str}'"
+            )
 
     index.nodes.sort(key=lambda n: n.id)
     index.edges.sort(key=lambda e: (e.type, e.source, e.target))

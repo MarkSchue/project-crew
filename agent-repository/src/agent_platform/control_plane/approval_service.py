@@ -99,6 +99,9 @@ class ApprovalService:
                 return True
         return False
 
+    def list_approvals(self) -> list[ApprovalRequest]:
+        return list(self._requests.values())
+
     def _is_expired(self, request: ApprovalRequest) -> bool:
         if request.expires_at is None:
             return False

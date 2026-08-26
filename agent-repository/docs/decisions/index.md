@@ -26,3 +26,4 @@
 | ADR-020 | architecture_decision | accepted | Deterministic testing versus agentic QA: evidence producer/reviewer separation | [ADR-020.md](./ADR-020.md) |
 | ADR-021 | architecture_decision | accepted | Small-task execution modes: atomic, delegated, crew, workflow | [ADR-021.md](./ADR-021.md) |
 | ADR-022 | architecture_decision | accepted | Build versus reuse: continue building on CrewAI, no external agent-platform adoption for MVP | [ADR-022.md](./ADR-022.md) |
+| ADR-023 | architecture_decision | accepted | Web UI: dependency-free static frontend served by the control plane, validating against the backend schema | [ADR-023.md](./ADR-023.md) |
