@@ -64,3 +64,9 @@ capabilities:
     description: "Identify and document trust boundaries for a system."
     risk_level: "medium"
     minimum_proficiency: 2
+
+  - id: "project_management.status_query"
+    version: "1.0.0"
+    description: "Answer read-only questions about project state from the knowledge graph and run evidence."
+    risk_level: "low"
+    minimum_proficiency: 2

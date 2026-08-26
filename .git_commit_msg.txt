@@ -1,0 +1,16 @@
+Phase 9 backend track: knowledge graph + PM chat (M9.1-M9.3)
+
+M9.1 graph generator:
+- agent_platform/knowledge_graph: graph_generator.py (nodes/edges from OKF + raw_event leaves, idempotent, unknown-type and dangling-relation guards) and style_config.yaml
+- mas graph rebuild CLI command
+
+M9.2 graph + chat endpoints:
+- GET /api/v1/graph, /api/v1/graph/nodes/{id}, /api/v1/graph/nodes/{id}/neighbors (serve from graph_index.json)
+- POST /api/v1/chat/sessions, POST /api/v1/chat/sessions/{id}/messages, GET /api/v1/chat/sessions/{id}/stream
+
+M9.3 Project Manager agent:
+- execution_plane/pm_query_flow.py (load→authorize→query→compose→cite→log)
+- registry: project_manager_agent + 4 read-only tools + project_management.status_query capability + eval dataset
+- mas chat CLI command
+
+Tests: test_graph_generator, test_pm_query_flow, test_graph_chat_api. Full suite: 214 passed, 2 skipped.

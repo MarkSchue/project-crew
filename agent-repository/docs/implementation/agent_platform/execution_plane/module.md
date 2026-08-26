@@ -39,6 +39,8 @@ compiled manifest and never mutates registry or governance policy.
   gate (M7.4); see `raid.md`.
 - `status_report_generator.py`: OKF status reports with zero unsourced
   claims (M7.5); see `status_report_generator.md`.
+- `pm_query_flow.py`: `PmQueryFlow` — the read-only Project Manager query
+  flow (M9.3); see `pm_query_flow.md`.
 - `flows/`: G0-G5 project-management workflows (M7.1-M7.6); see
   `flows/module.md`.
 

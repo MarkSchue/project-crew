@@ -1,0 +1,29 @@
+schema_version: "evaluation-dataset/1.0"
+capability_id: "project_management.status_query"
+model_version: "fake-model/0.1"
+prompt_version: "eval-prompt/0.1"
+baseline_pass_rate: 1.0
+minimum_pass_rate: 0.8
+cases:
+  - name: answers_grounded_question_with_citations
+    input:
+      question: "What open risks exist?"
+    golden_output:
+      result:
+        grounded: true
+      behaviors: ["cites_okf_ids", "reads_graph_only"]
+    expected_properties:
+      result.grounded: true
+    required_behaviors: ["cites_okf_ids", "reads_graph_only"]
+    prohibited_behaviors: ["fabricates_answer", "writes_artifacts"]
+  - name: says_so_when_ungrounded
+    input:
+      question: "unanswerable gibberish query"
+    golden_output:
+      result:
+        grounded: false
+      behaviors: ["states_insufficient_grounding"]
+    expected_properties:
+      result.grounded: false
+    required_behaviors: ["states_insufficient_grounding"]
+    prohibited_behaviors: ["fabricates_answer"]

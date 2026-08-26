@@ -13,6 +13,7 @@ Implements:
 from __future__ import annotations
 
 import hashlib
+import json
 import shutil
 from pathlib import Path
 
@@ -20,7 +21,16 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from agent_platform.adapters.clock_and_ids import FixedClock, SequentialIdGenerator
+from agent_platform.adapters.persistence import InMemoryEventLedger
+from agent_platform.adapters.policy import LocalDevPolicyDecisionPoint
 from agent_platform.cli.agent_scaffold import scaffold_agent
+from agent_platform.execution_plane.pm_query_flow import PmQueryFlow
+from agent_platform.knowledge_graph.graph_generator import (
+    GraphGenerationError,
+    load_style_config,
+    write_graph_index,
+)
 from agent_platform.migrations.runner import run_pending_migrations
 from agent_platform.registries.agent_registry import load_agent_registry
 from agent_platform.registries.base import RegistryError
@@ -36,10 +46,12 @@ from agent_platform.schemas.xref_validator import validate_cross_references
 app = typer.Typer(add_completion=False, help="Agent platform control-plane CLI.")
 project_app = typer.Typer(add_completion=False, help="Project-level commands.")
 index_app = typer.Typer(add_completion=False, help="Generated-index commands.")
+graph_app = typer.Typer(add_completion=False, help="Knowledge-graph commands.")
 registry_app = typer.Typer(add_completion=False, help="Registry commands.")
 agent_app = typer.Typer(add_completion=False, help="Agent commands.")
 app.add_typer(project_app, name="project")
 app.add_typer(index_app, name="index")
+app.add_typer(graph_app, name="graph")
 app.add_typer(registry_app, name="registry")
 app.add_typer(agent_app, name="agent")
 
@@ -48,6 +60,7 @@ console = Console()
 _WORKSPACE_ROOT = Path(__file__).resolve().parents[4]
 _DEFAULT_SCHEMA_DIR = _WORKSPACE_ROOT / "project-template-repository" / "schemas"
 _DEFAULT_TEMPLATE_DIR = _WORKSPACE_ROOT / "project-template-repository" / "project_skeleton"
+_DEFAULT_STYLE_CONFIG = Path(__file__).resolve().parents[1] / "knowledge_graph" / "style_config.yaml"
 
 
 @project_app.command("validate")
@@ -156,6 +169,33 @@ def index_rebuild(
     console.print(f"Regenerated {len(written)} index file(s).")
 
 
+@graph_app.command("rebuild")
+def graph_rebuild(
+    path: Path = typer.Argument(..., help="Project tree to generate graph_index.json for."),
+    style_config: Path = typer.Option(
+        _DEFAULT_STYLE_CONFIG, "--style-config", help="Path to the style_config.yaml file."
+    ),
+) -> None:
+    """Regenerate `public/knowledge/graph_index.json` from the OKF files
+    under PATH (masterplan section 9.6). Fails on dangling relations or
+    node types with no style entry."""
+    if not path.exists():
+        console.print(f"[red]Path does not exist:[/red] {path}")
+        raise typer.Exit(code=2)
+    if not style_config.exists():
+        console.print(f"[red]Style config does not exist:[/red] {style_config}")
+        raise typer.Exit(code=2)
+
+    config = load_style_config(style_config)
+    try:
+        written = write_graph_index(path, config)
+    except GraphGenerationError as exc:
+        console.print(f"[red]graph generation failed:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    console.print(f"[green]wrote[/green] {written}")
+
+
 @registry_app.command("validate")
 def registry_validate(
     registry_dir: Path = typer.Argument(..., help="Path to a registry/ directory."),
@@ -201,6 +241,51 @@ def agent_scaffold_command(
     """Generate a draft agent scaffold (masterplan section 11.3, plan M2.5)."""
     agent_dir = scaffold_agent(registry_dir, agent_id)
     console.print(f"[green]scaffolded[/green] {agent_dir} (status: draft)")
+
+
+@app.command("chat")
+def chat_command(
+    question: str = typer.Option(None, "--question", help="One-shot question; omit for an interactive REPL."),
+    project_root: Path = typer.Option(Path("."), "--project-root", help="Active project directory."),
+    graph: Path = typer.Option(None, "--graph", help="Path to graph_index.json (regenerate with mas graph rebuild)."),
+    classification: str = typer.Option("internal", "--classification", help="Session classification (public|internal)."),
+) -> None:
+    """Ask the standing Project Manager agent (read-only, masterplan 11.4)."""
+    graph_index: dict | None = None
+    if graph is not None:
+        if not graph.exists():
+            console.print(f"[red]Graph index not found:[/red] {graph}")
+            raise typer.Exit(code=2)
+        graph_index = json.loads(graph.read_text(encoding="utf-8"))
+
+    flow = PmQueryFlow(
+        policy=LocalDevPolicyDecisionPoint(decision_id_generator=SequentialIdGenerator()),
+        graph_index=graph_index,
+        project_root=project_root,
+        event_ledger=InMemoryEventLedger(),
+        id_generator=SequentialIdGenerator(),
+        clock=FixedClock(),
+    )
+    session = flow.create_session(
+        session_id=f"cli-{classification}", project_id="cli", classification=classification
+    )
+
+    def _answer(text: str) -> None:
+        result = flow.ask(session.session_id, text)
+        console.print(f"[bold]PM agent:[/bold] {result.answer}")
+        if result.citations:
+            console.print(f"[dim]citations:[/dim] {', '.join(result.citations)}")
+
+    if question:
+        _answer(question)
+        return
+
+    console.print("Ask the Project Manager agent (read-only). Type 'quit' to exit.")
+    while True:
+        line = typer.prompt(">")
+        if line.strip().lower() in {"quit", "exit", "q"}:
+            break
+        _answer(line)
 
 
 def _hash_directory(directory: Path) -> str:

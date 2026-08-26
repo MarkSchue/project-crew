@@ -1,0 +1,18 @@
+schema_version: "tool/1.0"
+tool_id: "run_evidence_reader_tool"
+version: "1.0.0"
+description: "Read run summaries and run evidence from the project record (read-only)."
+owner: "platform_engineering"
+side_effect_category: "read_only"
+required_permissions: ["knowledge.read"]
+network_destinations: []
+data_classifications: ["public", "internal"]
+timeout_seconds: 10
+retry_policy:
+  max_attempts: 2
+  retry_on: ["transient_io_error"]
+idempotent: true
+audit_required: true
+test_evidence_refs: ["tests/unit/test_pm_query_flow.py"]
+security_evidence_refs: ["tests/unit/test_pm_query_flow.py"]
+status: "active"

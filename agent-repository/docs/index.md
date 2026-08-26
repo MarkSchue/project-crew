@@ -47,7 +47,8 @@ strategy). This file is currently maintained by hand; a `mas docs` generator
 | `agent_platform.telemetry` | [module.md](implementation/agent_platform/telemetry/module.md) | Phase 3: event JSONL projection, run summary generation; Phase 8: metrics registry (M8.1) |
 | `agent_platform.evaluation` | [module.md](implementation/agent_platform/evaluation/module.md) | Phase 8: regression evaluation runner + datasets (M8.2) |
 | `agent_platform.security` | [module.md](implementation/agent_platform/security/module.md) | Phase 8: prompt-injection detector (M8.3) |
-| `agent_platform.api` | [module.md](implementation/agent_platform/api/module.md) | Phase 6: FastAPI control plane + SSE/RBAC |
+| `agent_platform.knowledge_graph` | [module.md](implementation/agent_platform/knowledge_graph/module.md) | Phase 9: graph generator + style config (M9.1) |
+| `agent_platform.api` | [module.md](implementation/agent_platform/api/module.md) | Phase 6: FastAPI control plane + SSE/RBAC; Phase 9: graph + chat endpoints (M9.2) |
 | `agent_platform.repositories.postgres` | [module.md](implementation/agent_platform/repositories/postgres/module.md) | Phase 6: PostgreSQL RunStateStore/EventLedger |
 
 ## Tool library (`tools/`)

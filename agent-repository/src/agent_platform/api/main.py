@@ -12,6 +12,7 @@ working dev instance. Environment overrides:
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
@@ -23,6 +24,7 @@ from agent_platform.api.auth import DevAuthProvider, Identity
 from agent_platform.control_plane.approval_service import ApprovalService
 from agent_platform.control_plane.policy_engine import PolicyEngine
 from agent_platform.control_plane.spoc_compiler import CompileSpocService
+from agent_platform.execution_plane.pm_query_flow import PmQueryFlow
 from agent_platform.execution_plane.project_flow import ProjectExecutionFlow
 from agent_platform.registries.agent_registry import load_agent_registry
 from agent_platform.registries.capability_registry import load_capability_registry
@@ -78,6 +80,21 @@ def build_app():
         {_ADMIN_TOKEN: Identity(actor_type="human", actor_id="admin", project_id=None, roles=frozenset({"admin"}))}
     )
 
+    graph_index = None
+    project_dir = Path(os.environ.get("AGENT_PLATFORM_PROJECT_DIR", _WORKSPACE / "active-project-repo"))
+    graph_path = project_dir / "public" / "knowledge" / "graph_index.json"
+    if graph_path.exists():
+        graph_index = json.loads(graph_path.read_text(encoding="utf-8"))
+
+    pm_query_flow = PmQueryFlow(
+        policy=policy,
+        graph_index=graph_index,
+        project_root=project_dir,
+        event_ledger=event_ledger,
+        id_generator=ids,
+        clock=clock,
+    )
+
     deps = ControlPlaneDeps(
         compile_service=compile_service,
         run_state_store=flow.run_state_store,
@@ -88,6 +105,8 @@ def build_app():
         agent_registry=agent_registry,
         capability_registry=capability_registry,
         schema_registry=schema_registry,
+        graph_index=graph_index,
+        pm_query_flow=pm_query_flow,
     )
     return create_app(deps)
 

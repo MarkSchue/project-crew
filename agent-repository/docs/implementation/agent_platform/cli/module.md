@@ -31,8 +31,9 @@ filesystem permissions).
 
 ## Responsibilities
 
-- `main.py`: Typer app exposing `mas project validate`, `mas index
-  rebuild`, `mas registry validate`, `mas agent scaffold`.
+- `main.py`: Typer app exposing `mas project validate`, `mas project
+  init`, `mas project migrate`, `mas index rebuild`, `mas graph rebuild`,
+  `mas registry validate`, `mas agent scaffold`, and `mas chat`.
 - `agent_scaffold.py`: generates a schema-valid, `status: draft` agent
   scaffold (masterplan section 11.3); intentionally incomplete until a
   human fills in role/goal/capabilities/evaluations.
@@ -40,17 +41,19 @@ filesystem permissions).
 ## Explicit non-responsibilities
 
 - Does not implement `mas docs *` (plan section 17.8) — not yet built.
-- Does not implement `mas project init`, `mas registry validate` beyond
-  Phase 2 scope, or `mas chat` (Phase 9 Project Manager agent) — deferred.
 
 ## Public contract (commands)
 
 | Command | Behavior | Exit code |
 |---|---|---|
 | `mas project validate <dir> [--schemas dir] [--mode fast\|full]` | lint + xref-validate every OKF file under `dir` | 0 clean, 1 on any error |
+| `mas project init <dir> [--template v]` | copy the pinned project skeleton + write `template.lock` | 0 always (2 if target not empty) |
+| `mas project migrate <dir>` | apply pending project migrations | 0 always |
 | `mas index rebuild <dir>` | regenerate `index.md` projections | 0 always (unless path missing: 2) |
+| `mas graph rebuild <dir> [--style-config f]` | regenerate `public/knowledge/graph_index.json` | 1 on dangling relation or unknown type |
 | `mas registry validate <registry-dir> [--schemas dir]` | load all six registries | 0 clean, 1 on `RegistryError` |
 | `mas agent scaffold <agent-id> [--registry dir]` | write a draft agent scaffold | 0 always |
+| `mas chat [--question q] [--graph f] [--project-root dir]` | one-shot or interactive PM-agent query (read-only) | 0 always |
 
 ## Invariants
 

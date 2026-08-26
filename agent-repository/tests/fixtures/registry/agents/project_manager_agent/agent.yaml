@@ -1,0 +1,26 @@
+schema_version: "agent/1.1"
+agent_id: "project_manager_agent"
+version: "1.0.0"
+name: "Project Manager Agent"
+status: "active"
+role: "Standing project manager assistant"
+goal: "Answer read-only questions about project state, grounded in the knowledge graph and run evidence."
+prompt_ref: "registry/agents/project_manager_agent/prompt.md"
+default_model_profile: "reasoning_medium"
+capabilities:
+  - id: "project_management.status_query"
+    proficiency: 3
+    evidence_refs: ["tests/evaluation/project_management.status_query/dataset.yaml"]
+allowed_tools:
+  - "graph_query_tool"
+  - "artifact_search_tool"
+  - "status_aggregator_tool"
+  - "run_evidence_reader_tool"
+allowed_classifications: ["public", "internal"]
+delegation:
+  can_delegate: false
+  allowed_capability_prefixes: []
+  max_depth: 0
+health:
+  evaluation_suite: "project_manager_regression"
+  minimum_pass_rate: 0.9

@@ -1,0 +1,32 @@
+# Knowledge-graph visual style configuration (masterplan section 9.6,
+# plan milestone M9.1).
+#
+# The default type -> color/icon table from masterplan section 9.6,
+# extended with epic, test_case, and test_result (and the remaining OKF
+# types) so every rendered node is styled by its `type`. This is
+# configuration, not hard-coded; the graph generator fails on any node
+# whose type has no entry here.
+#
+# `color` values are CSS-friendly; `icon` values are a stable string key
+# the frontend maps to a glyph (never rendered unstyled).
+
+types:
+  requirement: { color: "#2563eb", icon: document }
+  user_story: { color: "#2563eb", icon: document }
+  epic: { color: "#1e3a8a", icon: folder }
+  spoc: { color: "#ea580c", icon: gear }
+  architecture_decision: { color: "#7c3aed", icon: diamond }
+  decision: { color: "#7c3aed", icon: diamond }
+  risk: { color: "#dc2626", icon: warning }
+  issue: { color: "#f59e0b", icon: flag }
+  dependency: { color: "#6b7280", icon: link }
+  deliverable: { color: "#16a34a", icon: package }
+  acceptance: { color: "#0d9488", icon: shield }
+  status_report: { color: "#facc15", icon: chart }
+  run_summary: { color: "#475569", icon: terminal }
+  test_case: { color: "#92400e", icon: checklist }
+  test_result: { color: "#15803d", icon: result }
+  concept: { color: "#64748b", icon: note }
+  raw_event: { color: "#9ca3af", icon: log }
+  agent: { color: "#0891b2", icon: robot }
+  capability: { color: "#4338ca", icon: puzzle }

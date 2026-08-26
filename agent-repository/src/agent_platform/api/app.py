@@ -20,6 +20,7 @@ concurrency on state-changing calls, pagination on list endpoints, and
 from __future__ import annotations
 
 import hashlib
+import json
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
@@ -33,6 +34,7 @@ from agent_platform.application.ports.event_ledger import EventLedger
 from agent_platform.application.ports.run_state_store import RunStateStore
 from agent_platform.control_plane.spoc_compiler import CompileSpocService
 from agent_platform.domain.run import ProjectRunState, RunManifest, RunStatus
+from agent_platform.execution_plane.pm_query_flow import PmQueryFlow
 from agent_platform.execution_plane.project_flow import FlowRunOptions, ProjectExecutionFlow
 from agent_platform.registries.agent_registry import AgentRegistry
 from agent_platform.registries.capability_registry import CapabilityRegistry
@@ -62,6 +64,8 @@ class ControlPlaneDeps:
     capability_registry: CapabilityRegistry | None = None
     schema_registry: SchemaRegistry | None = None
     idempotency_store: IdempotencyStore = field(default_factory=IdempotencyStore)
+    graph_index: dict | None = None
+    pm_query_flow: PmQueryFlow | None = None
 
 
 class SpocValidateRequest(BaseModel):
@@ -95,6 +99,15 @@ class ResumeRunRequest(BaseModel):
 class ResolveApprovalRequest(BaseModel):
     approved: bool
     reason: str | None = None
+
+
+class ChatSessionCreateRequest(BaseModel):
+    project_id: str
+    classification: str = "internal"
+
+
+class ChatMessageRequest(BaseModel):
+    content: str
 
 
 def _etag(state: ProjectRunState) -> str:
@@ -282,6 +295,98 @@ def create_app(deps: ControlPlaneDeps) -> FastAPI:
             for cid, entry in sorted((deps.capability_registry.entries or {}).items())
         ]
         return _paginate(items, offset, limit)
+
+    # -- knowledge graph (M9.2) ------------------------------------------------
+
+    def _require_graph() -> dict:
+        if deps.graph_index is None:
+            raise HTTPException(status_code=404, detail="graph index not available")
+        return deps.graph_index
+
+    @app.get("/api/v1/graph")
+    def get_graph(request: Request) -> dict:
+        """Serve the graph directly from the pre-loaded graph_index.json
+        (no per-request OKF re-parsing)."""
+        _identity(request)
+        return _require_graph()
+
+    @app.get("/api/v1/graph/nodes/{node_id}")
+    def get_graph_node(node_id: str, request: Request) -> dict:
+        _identity(request)
+        graph = _require_graph()
+        for node in graph.get("nodes", []):
+            if node.get("id") == node_id:
+                return node
+        raise HTTPException(status_code=404, detail=f"unknown node '{node_id}'")
+
+    @app.get("/api/v1/graph/nodes/{node_id}/neighbors")
+    def get_graph_neighbors(node_id: str, request: Request) -> dict:
+        _identity(request)
+        graph = _require_graph()
+        nodes_by_id = {n.get("id"): n for n in graph.get("nodes", [])}
+        if node_id not in nodes_by_id:
+            raise HTTPException(status_code=404, detail=f"unknown node '{node_id}'")
+
+        neighbors: dict[str, dict] = {}
+        for edge in graph.get("edges", []):
+            if edge.get("source") == node_id:
+                neighbors[edge["target"]] = nodes_by_id.get(edge["target"], {})
+            elif edge.get("target") == node_id:
+                neighbors[edge["source"]] = nodes_by_id.get(edge["source"], {})
+        return {"node_id": node_id, "neighbors": list(neighbors.values())}
+
+    # -- Project Manager chat (M9.2 surface, M9.3 flow) -------------------------
+
+    @app.post("/api/v1/chat/sessions", status_code=201)
+    def create_chat_session(body: ChatSessionCreateRequest, request: Request) -> dict:
+        identity = _identity(request)
+        _authorize_project(identity, body.project_id)
+        if deps.pm_query_flow is None:
+            raise HTTPException(status_code=503, detail="chat flow not configured")
+        import uuid
+
+        session_id = f"chat-{uuid.uuid4().hex[:12]}"
+        session = deps.pm_query_flow.create_session(
+            session_id=session_id, project_id=body.project_id, classification=body.classification
+        )
+        return {"session_id": session.session_id, "classification": session.classification}
+
+    @app.post("/api/v1/chat/sessions/{session_id}/messages")
+    def post_chat_message(session_id: str, body: ChatMessageRequest, request: Request) -> dict:
+        _identity(request)
+        if deps.pm_query_flow is None:
+            raise HTTPException(status_code=503, detail="chat flow not configured")
+        try:
+            answer = deps.pm_query_flow.ask(session_id, body.content)
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        return {
+            "session_id": answer.session_id,
+            "answer": answer.answer,
+            "citations": answer.citations,
+            "grounded": answer.grounded,
+            "authorized": answer.authorized,
+        }
+
+    @app.get("/api/v1/chat/sessions/{session_id}/stream")
+    def stream_chat_session(session_id: str, request: Request) -> StreamingResponse:
+        _identity(request)
+        if deps.pm_query_flow is None:
+            raise HTTPException(status_code=503, detail="chat flow not configured")
+        try:
+            session = deps.pm_query_flow.get_session(session_id)
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+        def gen():
+            for message in session.messages:
+                payload = json.dumps(
+                    {"role": message.role, "content": message.content, "citations": message.citations}
+                )
+                yield f"event: chat_message\ndata: {payload}\n\n"
+            yield "event: done\ndata: {}\n\n"
+
+        return StreamingResponse(gen(), media_type="text/event-stream")
 
     def _require_if_match(request: Request, state: ProjectRunState) -> None:
         if request.headers.get("if-match") != _etag(state):

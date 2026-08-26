@@ -41,14 +41,15 @@ def test_capability_registry_expands_dependencies(schema_dir, registry_dir):
     assert "architecture.requirement_traceability" in expanded
 
 
-def test_agent_registry_loads_three_agents(schema_dir, registry_dir):
+def test_agent_registry_loads_all_agents(schema_dir, registry_dir):
     schema_registry = SchemaRegistry(schema_dir)
     capability_registry = load_capability_registry(registry_dir, schema_registry)
     agent_registry = load_agent_registry(registry_dir, schema_registry, capability_registry)
 
-    assert len(agent_registry) == 3
+    assert len(agent_registry) == 4
     assert agent_registry.get("security_architect") is not None
     assert agent_registry.get("qa_evaluator") is not None
+    assert agent_registry.get("project_manager_agent") is not None
 
 
 def test_agent_registry_rejects_dangling_capability_reference(schema_dir, fixtures_dir):
@@ -70,7 +71,7 @@ def test_skill_tool_model_workflow_registries_load(schema_dir, registry_dir):
     workflows = load_workflow_registry(registry_dir, schema_registry)
 
     assert len(skills) == 2
-    assert len(tools) == 3
+    assert len(tools) == 7
     assert len(models) == 2
     assert len(workflows) == 1
     assert workflows.get("requirement_to_delivery", "1.2.0") is not None
